@@ -1,5 +1,5 @@
 /**
- * National K-12 Awards · Leadership Command Center Client Logic
+ * Education Mentor Awards · Leadership Command Center Client Logic
  * Cloudflare D1 Database Integration: "awards-data" (47a46db1-2e59-4595-bcf5-01ee1fd29210)
  */
 
@@ -12,7 +12,7 @@
   const D1_KEY = '47a46db1-2e59-4595-bcf5-01ee1fd29210';
   const ADMIN_PASSWORD_FALLBACK = 'Awardsmmc@123';
 
-  // 25 National Award Categories
+  // 25 Education Mentor Award Categories
   const AWARD_CATEGORIES = [
     'Best School Leadership Award',
     'Best Academic Excellence Award',
@@ -710,7 +710,7 @@
 
     const dateStr = new Date().toISOString().substring(0, 10);
     link.setAttribute('href', url);
-    link.setAttribute('download', `k12-awards-nominations-${dateStr}.csv`);
+    link.setAttribute('download', `education-mentor-awards-nominations-${dateStr}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
