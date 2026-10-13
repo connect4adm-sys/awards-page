@@ -21,7 +21,14 @@ const largeFiles = [
   'contributions/07-alumni-mentorship.png',
   'contributions/08-digital-education-campus-innovation.png',
   'contributions/09-student-mental-health.png',
-  'contributions/11-inclusive-education.png'
+  'contributions/11-inclusive-education.png',
+  'awards/13-best-inclusive-education-award.png',
+  'awards/17-best-student-leadership-award.png',
+  'awards/18-best-alumni-engagement-award.png',
+  'journey/04-recognised-on-stage.png',
+  'stage/stage-reveal-trophy-bg.png',
+  'reach/pan-india-reach.png',
+  'final/final-cta-awaiting-stage.png'
 ];
 
 console.log('Optimizing large photographic PNGs to high-quality JPEGs (Quality 88)...');
