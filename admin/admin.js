@@ -583,9 +583,24 @@ function doGet(e) {
       localList = [];
     }
 
-    // Attempt background sync of unsynced local submissions to backend
+    // Attempt sync of unsynced local submissions to backend
     if (d1Connected && localList.length > 0) {
-      syncLocalSubmissionsToBackend(localList);
+      const syncedAny = await syncLocalSubmissionsToBackend(localList, token);
+      if (syncedAny) {
+        try {
+          const reloadRes = await fetch('/api/admin/submissions', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          const reloadJson = await reloadRes.json();
+          if (reloadJson.success && Array.isArray(reloadJson.data)) {
+            serverList = reloadJson.data;
+          }
+        } catch (reloadErr) {}
+      }
     }
 
     // Deduplicate and merge server records + local records
@@ -638,8 +653,35 @@ function doGet(e) {
   }
 
   // Background sync helper
-  async function syncLocalSubmissionsToBackend(localList) {
+  async function syncLocalSubmissionsToBackend(localList, token) {
+    if (!localList || localList.length === 0) return false;
     const unsynced = localList.filter(item => !item.synced);
+    if (unsynced.length === 0) return false;
+
+    // 1. Attempt authenticated batch sync to Cloudflare D1
+    try {
+      if (token) {
+        const batchRes = await fetch('/api/admin/submissions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(unsynced)
+        });
+        const batchJson = await batchRes.json();
+        if (batchJson && batchJson.success) {
+          localList.forEach(item => { item.synced = true; });
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localList));
+          return true;
+        }
+      }
+    } catch (batchErr) {
+      console.warn('Batch sync notice:', batchErr);
+    }
+
+    // 2. Fallback to individual /api/submit
+    let anySuccess = false;
     for (const item of unsynced) {
       try {
         const res = await fetch('/api/submit', {
@@ -652,12 +694,15 @@ function doGet(e) {
             city: item.city,
             email: item.email,
             phone: item.phone,
-            category: item.category
+            category: item.category,
+            created_at: item.created_at,
+            status: item.status
           })
         });
         const d = await res.json();
         if (d && d.success) {
           item.synced = true;
+          anySuccess = true;
           if (d.id) item.id = d.id;
           localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localList));
         }
@@ -665,6 +710,7 @@ function doGet(e) {
         // ignore background sync errors
       }
     }
+    return anySuccess;
   }
 
   // Update KPI counters

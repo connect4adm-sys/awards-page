@@ -10,6 +10,20 @@ const CORS_HEADERS = {
   'Content-Type': 'application/json'
 };
 
+const CREATE_TABLE_SQL = 'CREATE TABLE IF NOT EXISTS nominations (id INTEGER PRIMARY KEY AUTOINCREMENT, full_name TEXT NOT NULL, role TEXT, school TEXT NOT NULL, city TEXT, email TEXT NOT NULL, phone TEXT NOT NULL, category TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, status TEXT DEFAULT \'Pending\');';
+
+async function ensureTable(db) {
+  try {
+    await db.prepare(CREATE_TABLE_SQL).run();
+  } catch (err) {
+    try {
+      await db.exec(CREATE_TABLE_SQL);
+    } catch (execErr) {
+      console.warn('Table initialization notice:', execErr);
+    }
+  }
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
 
@@ -28,6 +42,9 @@ export async function onRequestPost(context) {
       });
     }
 
+    const createdAt = body.created_at || new Date().toISOString().replace('T', ' ').substring(0, 19);
+    const status = body.status || 'Pending';
+
     // Helper to forward to Google Sheet Webhook if configured
     const sheetWebhook = env.GOOGLE_SHEET_WEBHOOK_URL;
     const forwardToSheet = async (recordId) => {
@@ -42,8 +59,8 @@ export async function onRequestPost(context) {
             email: email.trim().toLowerCase(),
             phone: phone.trim(),
             category: category.trim(),
-            created_at: new Date().toISOString().replace('T', ' ').substring(0, 19),
-            status: 'Pending'
+            created_at: createdAt,
+            status: status
           };
 
           if (context.waitUntil) {
@@ -71,8 +88,6 @@ export async function onRequestPost(context) {
     const db = env.DB || env['awards-data'] || env.awards_data || env.AWARDS_DATA || env.AWARDS_DB;
 
     if (!db) {
-      // If D1 is not bound yet in Cloudflare dashboard, forward to Google Sheet if configured
-      // and return success with notice so browser stores in local buffer
       const fallbackId = 'D1-PENDING-' + Date.now().toString(36).toUpperCase();
       await forwardToSheet(fallbackId);
       console.warn("Cloudflare D1 Database binding 'DB' not detected. Stored in client buffer and forwarded to sheet if active.");
@@ -87,27 +102,13 @@ export async function onRequestPost(context) {
       });
     }
 
-    // Auto-create nominations table if it does not already exist
-    await db.exec(`
-      CREATE TABLE IF NOT EXISTS nominations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        full_name TEXT NOT NULL,
-        role TEXT,
-        school TEXT NOT NULL,
-        city TEXT,
-        email TEXT NOT NULL,
-        phone TEXT NOT NULL,
-        category TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        status TEXT DEFAULT 'Pending'
-      );
-    `);
+    // Auto-create nominations table safely if not already present
+    await ensureTable(db);
 
     // Insert record safely with parameterized query
-    const stmt = db.prepare(`
-      INSERT INTO nominations (full_name, role, school, city, email, phone, category, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending')
-    `);
+    const stmt = db.prepare(
+      'INSERT INTO nominations (full_name, role, school, city, email, phone, category, created_at, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    );
 
     const result = await stmt.bind(
       fullName.trim(),
@@ -116,10 +117,12 @@ export async function onRequestPost(context) {
       city ? city.trim() : '',
       email.trim().toLowerCase(),
       phone.trim(),
-      category.trim()
+      category.trim(),
+      createdAt,
+      status
     ).run();
 
-    const insertId = result.meta && result.meta.last_row_id ? result.meta.last_row_id : Date.now();
+    const insertId = (result && result.meta && (result.meta.last_row_id || result.meta.lastRowId)) || Date.now();
 
     // Asynchronously forward to Google Sheet Webhook if configured
     await forwardToSheet(insertId);

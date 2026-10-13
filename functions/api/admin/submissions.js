@@ -5,12 +5,25 @@
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, PATCH, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Sheet-Url',
   'Content-Type': 'application/json'
 };
 
 const DEFAULT_ADMIN_PASSWORD = 'Awardsmmc@123';
+const CREATE_TABLE_SQL = 'CREATE TABLE IF NOT EXISTS nominations (id INTEGER PRIMARY KEY AUTOINCREMENT, full_name TEXT NOT NULL, role TEXT, school TEXT NOT NULL, city TEXT, email TEXT NOT NULL, phone TEXT NOT NULL, category TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, status TEXT DEFAULT \'Pending\');';
+
+async function ensureTable(db) {
+  try {
+    await db.prepare(CREATE_TABLE_SQL).run();
+  } catch (err) {
+    try {
+      await db.exec(CREATE_TABLE_SQL);
+    } catch (execErr) {
+      console.warn('Table initialization notice:', execErr);
+    }
+  }
+}
 
 function isAuthorized(request, env) {
   const auth = request.headers.get('Authorization') || '';
@@ -73,24 +86,11 @@ export async function onRequestGet(context) {
   }
 
   try {
-    // Ensure table exists
-    await db.exec(`
-      CREATE TABLE IF NOT EXISTS nominations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        full_name TEXT NOT NULL,
-        role TEXT,
-        school TEXT NOT NULL,
-        city TEXT,
-        email TEXT NOT NULL,
-        phone TEXT NOT NULL,
-        category TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        status TEXT DEFAULT 'Pending'
-      );
-    `);
+    // Ensure table exists safely
+    await ensureTable(db);
 
     const { results } = await db.prepare(
-      'SELECT id, full_name, role, school, city, email, phone, category, created_at, status FROM nominations ORDER BY created_at DESC'
+      'SELECT id, full_name, role, school, city, email, phone, category, created_at, status FROM nominations ORDER BY id DESC'
     ).all();
 
     return new Response(JSON.stringify({
@@ -106,6 +106,72 @@ export async function onRequestGet(context) {
       headers: CORS_HEADERS
     });
 
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, error: err.message }), {
+      status: 500,
+      headers: CORS_HEADERS
+    });
+  }
+}
+
+export async function onRequestPost(context) {
+  const { request, env } = context;
+
+  if (!isAuthorized(request, env)) {
+    return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), {
+      status: 401,
+      headers: CORS_HEADERS
+    });
+  }
+
+  const db = env.DB || env['awards-data'] || env.awards_data || env.AWARDS_DATA || env.AWARDS_DB;
+  if (!db) {
+    return new Response(JSON.stringify({ success: false, error: 'D1 Database not bound' }), {
+      status: 500,
+      headers: CORS_HEADERS
+    });
+  }
+
+  try {
+    await ensureTable(db);
+    const body = await request.json();
+    const items = Array.isArray(body) ? body : [body];
+    let inserted = 0;
+
+    for (const item of items) {
+      const fullName = (item.full_name || item.fullName || '').trim();
+      const school = (item.school || '').trim();
+      const email = (item.email || '').trim().toLowerCase();
+      const phone = (item.phone || '').trim();
+      const category = (item.category || '').trim();
+      const role = (item.role || 'Principal').trim();
+      const city = (item.city || '').trim();
+      const createdAt = item.created_at || new Date().toISOString().replace('T', ' ').substring(0, 19);
+      const status = item.status || 'Pending';
+
+      if (!fullName || !email) continue;
+
+      // Check if already in DB to prevent duplicates
+      const existing = await db.prepare(
+        'SELECT id FROM nominations WHERE email = ? AND category = ? LIMIT 1'
+      ).bind(email, category).first();
+
+      if (!existing) {
+        await db.prepare(
+          'INSERT INTO nominations (full_name, role, school, city, email, phone, category, created_at, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        ).bind(fullName, role, school, city, email, phone, category, createdAt, status).run();
+        inserted++;
+      }
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      inserted,
+      message: `${inserted} nominations saved to D1 database.`
+    }), {
+      status: 200,
+      headers: CORS_HEADERS
+    });
   } catch (err) {
     return new Response(JSON.stringify({ success: false, error: err.message }), {
       status: 500,
