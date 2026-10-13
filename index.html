@@ -3249,30 +3249,34 @@
       background: #040c18;
       color: #fff;
       position: relative;
-      padding: clamp(55px, 7vw, 90px) 0;
+      padding: clamp(65px, 8vw, 105px) 0 clamp(75px, 9vw, 115px);
       overflow: hidden;
-      text-align: center
+      text-align: center;
+      min-height: 95vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .stage-bg {
       position: absolute;
       inset: 0;
       z-index: 0;
-      opacity: .28
+      opacity: .28;
     }
 
     .stage-bg img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      filter: saturate(.6) brightness(.4)
+      filter: saturate(.6) brightness(.4);
     }
 
     .stage-bg::after {
       content: "";
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse 75% 70% at 50% 50%, rgba(4, 12, 24, .4) 0%, rgba(4, 12, 24, .92) 80%)
+      background: radial-gradient(ellipse 75% 70% at 50% 50%, rgba(4, 12, 24, .4) 0%, rgba(4, 12, 24, .92) 80%);
     }
 
     .stage-lights {
@@ -3280,7 +3284,7 @@
       inset: 0;
       z-index: 1;
       opacity: 0;
-      transition: opacity 1.8s var(--ease)
+      transition: opacity 1.8s var(--ease);
     }
 
     .stage-lights::before,
@@ -3291,67 +3295,20 @@
       width: 65%;
       height: 100%;
       background: radial-gradient(ellipse at top, rgba(245, 197, 24, .35), transparent 60%);
-      filter: blur(40px)
+      filter: blur(40px);
     }
 
     .stage-lights::before {
-      left: -10%
+      left: -10%;
     }
 
     .stage-lights::after {
       right: -10%;
-      background: radial-gradient(ellipse at top, rgba(30, 77, 140, .5), transparent 60%)
+      background: radial-gradient(ellipse at top, rgba(30, 77, 140, .5), transparent 60%);
     }
 
     .stage-reveal.on .stage-lights {
-      opacity: 1
-    }
-
-    .trophy-glow {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: min(850px, 96vw);
-      height: min(850px, 96vw);
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(245, 197, 24, .26) 0%, rgba(245, 197, 24, .10) 36%, rgba(30, 77, 140, .06) 62%, transparent 76%);
-      filter: blur(45px);
-      z-index: 1;
-      opacity: 0;
-      transition: opacity 2s var(--ease);
-      pointer-events: none
-    }
-
-    .stage-reveal.on .trophy-glow {
-      opacity: 1
-    }
-
-    .trophy {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -46%) scale(.92);
-      z-index: 2;
-      opacity: 0;
-      transition: opacity 1.6s var(--ease), transform 2s var(--ease);
-      pointer-events: none;
-      display: flex;
-      align-items: center;
-      justify-content: center
-    }
-
-    .stage-reveal.on .trophy {
-      opacity: .48;
-      transform: translate(-50%, -50%) scale(1)
-    }
-
-    .trophy-img {
-      height: clamp(500px, 86vh, 920px);
-      width: auto;
-      max-width: min(760px, 94vw);
-      object-fit: contain;
-      filter: drop-shadow(0 0 50px rgba(245, 197, 24, .36)) drop-shadow(0 25px 60px rgba(0, 0, 0, .88))
+      opacity: 1;
     }
 
     .stage-content {
@@ -3359,12 +3316,18 @@
       z-index: 3;
       width: var(--container);
       margin-inline: auto;
-      pointer-events: none;
-      padding: 0 12px
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .stage-content>* {
-      pointer-events: auto
+    /* Stage Header - Placed Safely Above the Trophy Head */
+    .stage-header {
+      position: relative;
+      z-index: 4;
+      margin-bottom: clamp(16px, 2.5vw, 30px);
+      text-align: center;
     }
 
     .stage-content .l1 {
@@ -3373,12 +3336,12 @@
       letter-spacing: .32em;
       text-transform: uppercase;
       color: var(--gold);
-      margin-bottom: 60px;
+      margin-bottom: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 18px;
-      text-shadow: 0 2px 14px rgba(0, 0, 0, .95)
+      text-shadow: 0 2px 14px rgba(0, 0, 0, .95);
     }
 
     .stage-content .l1::before,
@@ -3386,92 +3349,160 @@
       content: "";
       width: 60px;
       height: 1px;
-      background: rgba(245, 197, 24, .4)
+      background: rgba(245, 197, 24, .4);
     }
 
     .stage-content .l2 {
       font-family: var(--font-display);
       font-weight: 300;
-      font-size: clamp(2.2rem, 8vw, 7rem);
-      line-height: .96;
+      font-size: clamp(2.4rem, 6.2vw, 5.2rem);
+      line-height: .98;
       letter-spacing: -.035em;
-      margin-bottom: 34px;
-      text-shadow: 0 8px 30px rgba(0, 0, 0, .95), 0 2px 8px rgba(0, 0, 0, 1)
+      margin-bottom: 14px;
+      text-shadow: 0 8px 30px rgba(0, 0, 0, .95), 0 2px 8px rgba(0, 0, 0, 1);
     }
 
     .stage-content .l2 em {
       font-style: italic;
-      color: var(--gold)
+      color: var(--gold);
     }
 
     .stage-content .l3 {
       font-family: var(--font-display);
       font-weight: 300;
       font-style: italic;
-      font-size: clamp(1.3rem, 3vw, 2.4rem);
-      line-height: 1.15;
+      font-size: clamp(1.2rem, 2.6vw, 2.1rem);
+      line-height: 1.2;
       letter-spacing: -.02em;
-      color: rgba(255, 255, 255, .9);
-      margin-bottom: 56px;
-      text-shadow: 0 6px 24px rgba(0, 0, 0, .95), 0 2px 6px rgba(0, 0, 0, 1)
+      color: rgba(255, 255, 255, .94);
+      margin: 0;
+      text-shadow: 0 6px 24px rgba(0, 0, 0, .95), 0 2px 6px rgba(0, 0, 0, 1);
+    }
+
+    /* Trophy Showcase - Centered with pristine unobstructed head */
+    .stage-trophy-showcase {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      margin: clamp(8px, 1.8vw, 20px) 0 clamp(20px, 3vw, 34px);
+    }
+
+    .stage-trophy-showcase .trophy {
+      position: relative;
+      left: auto;
+      top: auto;
+      transform: scale(0.92);
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 1.6s var(--ease), transform 1.8s var(--ease);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stage-reveal.on .stage-trophy-showcase .trophy {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .trophy-img {
+      height: clamp(360px, 56vh, 600px);
+      width: auto;
+      max-width: min(520px, 92vw);
+      object-fit: contain;
+      filter: drop-shadow(0 0 60px rgba(245, 197, 24, .45)) drop-shadow(0 25px 50px rgba(0, 0, 0, .95));
+      transition: transform 0.6s ease;
+    }
+
+    .stage-trophy-showcase .trophy:hover .trophy-img {
+      transform: scale(1.03);
+    }
+
+    .stage-trophy-showcase .trophy-glow {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(650px, 90vw);
+      height: min(650px, 90vw);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245, 197, 24, .28) 0%, rgba(245, 197, 24, .12) 38%, rgba(30, 77, 140, .06) 65%, transparent 78%);
+      filter: blur(45px);
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 2s var(--ease);
+      pointer-events: none;
+    }
+
+    .stage-reveal.on .stage-trophy-showcase .trophy-glow {
+      opacity: 1;
+    }
+
+    /* Stage Footer - Below Trophy */
+    .stage-footer {
+      position: relative;
+      z-index: 4;
+      text-align: center;
     }
 
     .stage-content .l4 {
       font-family: var(--font-display);
       font-weight: 400;
-      font-size: clamp(1.6rem, 4.6vw, 3.4rem);
-      line-height: 1.04;
+      font-size: clamp(1.3rem, 3.2vw, 2.3rem);
+      line-height: 1.15;
       letter-spacing: -.02em;
-      text-shadow: 0 8px 30px rgba(0, 0, 0, .95), 0 2px 8px rgba(0, 0, 0, 1)
+      text-shadow: 0 8px 30px rgba(0, 0, 0, .95), 0 2px 8px rgba(0, 0, 0, 1);
     }
 
     .stage-content .l4 em {
       font-style: italic;
-      color: var(--gold-soft)
+      color: var(--gold-soft);
     }
 
     @media(max-width:768px) {
       .stage-reveal {
-        padding: clamp(40px, 8vw, 65px) 0
+        padding: clamp(50px, 9vw, 75px) 0;
+        min-height: auto;
       }
 
-      .trophy {
-        width: min(440px, 92vw)
+      .stage-header {
+        margin-bottom: 18px;
       }
 
       .trophy-img {
-        height: clamp(380px, 70vh, 560px);
-        max-width: min(380px, 90vw)
+        height: clamp(300px, 48vh, 440px);
+        max-width: min(340px, 88vw);
       }
 
-      .trophy-glow {
-        width: 380px;
-        height: 380px
+      .stage-trophy-showcase .trophy-glow {
+        width: 320px;
+        height: 320px;
       }
 
       .stage-content .l1 {
-        margin-bottom: 20px;
+        margin-bottom: 14px;
         font-size: 9.5px;
-        gap: 12px
+        gap: 12px;
       }
 
       .stage-content .l1::before,
       .stage-content .l1::after {
-        width: 30px
+        width: 30px;
       }
 
       .stage-content .l2 {
-        margin-bottom: 16px;
-        font-size: clamp(2.1rem, 9vw, 3.4rem)
+        margin-bottom: 10px;
+        font-size: clamp(2rem, 8vw, 3.2rem);
       }
 
       .stage-content .l3 {
-        margin-bottom: 24px;
-        font-size: clamp(1.1rem, 4.2vw, 1.45rem)
+        font-size: clamp(1.05rem, 4vw, 1.35rem);
       }
 
       .stage-content .l4 {
-        font-size: clamp(1.2rem, 4.8vw, 1.8rem)
+        font-size: clamp(1.15rem, 4.5vw, 1.6rem);
       }
     }
 
@@ -4130,6 +4161,302 @@
       color: var(--navy);
       border-color: var(--navy);
       font-weight: 700;
+    }
+
+    /* Multi-select Checkbox Dropdown */
+    .cat-multiselect {
+      position: relative;
+      width: 100%;
+    }
+
+    .cat-select-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 13px 16px;
+      border: 1.5px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--navy);
+      font-family: var(--font-body);
+      font-size: .92rem;
+      cursor: pointer;
+      transition: all .25s ease;
+      text-align: left;
+    }
+
+    .cat-select-btn:hover {
+      border-color: #0F2A4F;
+    }
+
+    .cat-select-btn:focus,
+    .cat-select-btn.is-open {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.2);
+    }
+
+    .cat-btn-text {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-right: 12px;
+      font-weight: 500;
+    }
+
+    .cat-btn-placeholder {
+      color: #7b8e9f;
+      font-weight: 400;
+    }
+
+    .cat-btn-badges {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .cat-mini-count {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 12px;
+      background: rgba(15, 42, 79, 0.08);
+      color: var(--navy);
+      border: 1px solid rgba(15, 42, 79, 0.15);
+      transition: all .2s ease;
+    }
+
+    .cat-mini-count.max-reached {
+      background: rgba(197, 160, 89, 0.2);
+      color: #8C7226;
+      border-color: rgba(197, 160, 89, 0.4);
+    }
+
+    .cat-chevron {
+      font-size: 10px;
+      color: var(--navy);
+      transition: transform .25s ease;
+    }
+
+    .cat-select-btn.is-open .cat-chevron {
+      transform: rotate(180deg);
+    }
+
+    .cat-dropdown-panel {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #0B192C;
+      border: 1.5px solid rgba(197, 160, 89, 0.45);
+      border-radius: 8px;
+      box-shadow: 0 18px 45px rgba(6, 24, 49, 0.55), 0 4px 12px rgba(0, 0, 0, 0.3);
+      display: none;
+      animation: panelFadeDown .2s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+
+    .cat-dropdown-panel.open {
+      display: block;
+    }
+
+    @keyframes panelFadeDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .cat-panel-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: #071220;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 12px;
+      color: #e2e8f0;
+    }
+
+    .cat-panel-top strong {
+      color: var(--gold);
+    }
+
+    .cat-panel-counter {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gold);
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(197, 160, 89, 0.15);
+      border: 1px solid rgba(197, 160, 89, 0.3);
+    }
+
+    .cat-options-container {
+      max-height: 290px;
+      overflow-y: auto;
+      padding: 6px 0;
+    }
+
+    .cat-options-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .cat-options-container::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .cat-options-container::-webkit-scrollbar-thumb {
+      background: rgba(197, 160, 89, 0.35);
+      border-radius: 3px;
+    }
+
+    .cat-options-container::-webkit-scrollbar-thumb:hover {
+      background: rgba(197, 160, 89, 0.6);
+    }
+
+    .cat-checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: background .15s ease;
+      user-select: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .cat-checkbox-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .cat-checkbox-item.is-checked {
+      background: rgba(197, 160, 89, 0.12);
+    }
+
+    .cat-checkbox-item.is-disabled {
+      opacity: 0.38;
+      cursor: not-allowed;
+      background: transparent !important;
+    }
+
+    .cat-checkbox-input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+    }
+
+    .cat-custom-checkbox {
+      width: 19px;
+      height: 19px;
+      flex-shrink: 0;
+      border: 1.5px solid rgba(197, 160, 89, 0.6);
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s ease;
+    }
+
+    .cat-checkbox-item:hover:not(.is-disabled) .cat-custom-checkbox {
+      border-color: var(--gold);
+      box-shadow: 0 0 6px rgba(245, 197, 24, 0.35);
+    }
+
+    .cat-checkbox-item.is-checked .cat-custom-checkbox {
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+
+    .cat-custom-checkbox::after {
+      content: "";
+      width: 5px;
+      height: 10px;
+      border: solid #061831;
+      border-width: 0 2.2px 2.2px 0;
+      transform: rotate(45deg) scale(0);
+      transition: transform .18s ease-out;
+      margin-bottom: 2px;
+    }
+
+    .cat-checkbox-item.is-checked .cat-custom-checkbox::after {
+      transform: rotate(45deg) scale(1);
+    }
+
+    .cat-item-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+
+    .cat-item-title-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .cat-item-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .cat-item-name {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: #F8F5EE;
+      line-height: 1.3;
+    }
+
+    .cat-item-role {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .cat-panel-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: #071220;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 11.5px;
+    }
+
+    .cat-panel-hint {
+      color: #94a3b8;
+    }
+
+    .cat-panel-hint.warn {
+      color: #e67e22;
+      font-weight: 600;
+    }
+
+    .cat-panel-done-btn {
+      background: var(--gold);
+      color: #061831;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: var(--font-body);
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+
+    .cat-panel-done-btn:hover {
+      background: #dfba73;
+      transform: translateY(-1px);
     }
 
     .selected-categories-container {
@@ -5564,15 +5891,27 @@
       <div class="stage-bg"><img decoding="async" src="images/awards-event/stage/stage-reveal-trophy-bg.jpg" alt="The Education Mentor Awards Stage Background"
           loading="lazy" /></div>
       <div class="stage-lights"></div>
-      <div class="trophy-glow"></div>
-      <div class="trophy">
-        <img decoding="async" src="assets/mmc-award-trophy.png" alt="Education Mentor Awards Trophy" class="trophy-img" />
-      </div>
+      
       <div class="stage-content">
-        <div class="l1">The stage</div>
-        <div class="l2">Recognition.</div>
-        <div class="l3">For the work that matters.</div>
-        <div class="l4">Education Mentor Awards<br><em>2026-2027 · Pan-India Edition</em></div>
+        <!-- Stage Header: Safely Positioned Above the Trophy Head -->
+        <div class="stage-header">
+          <div class="l1">The stage</div>
+          <h2 class="l2">Recognition.</h2>
+          <p class="l3">For the work that matters.</p>
+        </div>
+
+        <!-- Trophy Showcase: Head & wings fully clear and unobstructed -->
+        <div class="stage-trophy-showcase">
+          <div class="trophy-glow"></div>
+          <div class="trophy">
+            <img decoding="async" src="assets/mmc-award-trophy.png" alt="Education Mentor Awards Trophy" class="trophy-img" />
+          </div>
+        </div>
+
+        <!-- Stage Footer: Positioned Below Trophy Base -->
+        <div class="stage-footer">
+          <div class="l4">Education Mentor Awards<br><em>2026-2027 · Pan-India Edition</em></div>
+        </div>
       </div>
     </section>
 
@@ -5932,15 +6271,42 @@
             <div class="form-row">
               <div class="field full">
                 <div class="category-label-row">
-                  <label for="categoryDropdown">Award Categories <span class="sub-label">(Select up to 3 awards)</span></label>
+                  <label for="catDropdownTrigger">Award Categories <span class="sub-label">(Select up to 3 awards with checkboxes)</span></label>
                   <span class="cat-counter-pill" id="catCounterPill">0 / 3 Selected</span>
                 </div>
                 <input type="hidden" id="category" name="category" required />
-                <select id="categoryDropdown">
-                  <option value="">+ Choose an award category (max 3)...</option>
-                </select>
+                
+                <!-- Multi-Select Checkbox Dropdown Component -->
+                <div class="cat-multiselect" id="catMultiSelect">
+                  <button type="button" class="cat-select-btn" id="catDropdownTrigger" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="cat-btn-text" id="catBtnText">
+                      <span class="cat-btn-placeholder">Click to select award categories (max 3)...</span>
+                    </span>
+                    <span class="cat-btn-badges">
+                      <span class="cat-mini-count" id="catMiniCount">0/3</span>
+                      <span class="cat-chevron" id="catChevron" aria-hidden="true">▼</span>
+                    </span>
+                  </button>
+
+                  <div class="cat-dropdown-panel" id="catDropdownPanel" role="listbox" aria-multiselectable="true">
+                    <div class="cat-panel-top">
+                      <div class="cat-panel-instructions">
+                        <span>Select <strong>1 to 3 categories</strong>:</span>
+                      </div>
+                      <span class="cat-panel-counter" id="catPanelCounter">0 of 3 chosen</span>
+                    </div>
+                    <div class="cat-options-container" id="catOptionsContainer">
+                      <!-- 25 checkbox items dynamically injected -->
+                    </div>
+                    <div class="cat-panel-bottom">
+                      <span class="cat-panel-hint" id="catPanelHint">Tick up to 3 categories</span>
+                      <button type="button" class="cat-panel-done-btn" id="catPanelDoneBtn">Done</button>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="selected-categories-container" id="selectedCatsContainer">
-                  <span class="no-cats-placeholder">No categories chosen yet. Select 1 to 3 categories from the dropdown above.</span>
+                  <span class="no-cats-placeholder">No categories chosen yet. Click the dropdown above and tick up to 3 checkboxes.</span>
                 </div>
                 <div class="cat-error-note" id="catErrorNote" style="display:none"></div>
               </div>
@@ -6128,105 +6494,215 @@
     });
 
     /* ============================================================
-       Multi-Category Selector (Max 3 Awards)
+       Multi-Category Checkbox Dropdown (Max 3 Awards)
        ============================================================ */
     const categoryHidden = document.getElementById('category');
-    const categoryDropdown = document.getElementById('categoryDropdown');
+    const catDropdownTrigger = document.getElementById('catDropdownTrigger');
+    const catDropdownPanel = document.getElementById('catDropdownPanel');
+    const catOptionsContainer = document.getElementById('catOptionsContainer');
+    const catBtnText = document.getElementById('catBtnText');
+    const catMiniCount = document.getElementById('catMiniCount');
+    const catPanelCounter = document.getElementById('catPanelCounter');
+    const catPanelHint = document.getElementById('catPanelHint');
+    const catPanelDoneBtn = document.getElementById('catPanelDoneBtn');
     const selectedCatsContainer = document.getElementById('selectedCatsContainer');
     const catCounterPill = document.getElementById('catCounterPill');
     const catErrorNote = document.getElementById('catErrorNote');
 
     let selectedCategories = [];
 
-    function populateCategoryDropdown() {
-      if (!categoryDropdown) return;
-      categoryDropdown.innerHTML = '<option value="">+ Choose an award category (max 3)...</option>';
+    // Dynamically build the 25 category items with custom checkboxes inside the dropdown panel
+    function initCategoryCheckboxes() {
+      if (!catOptionsContainer) return;
+      catOptionsContainer.innerHTML = '';
       AWARDS.forEach(a => {
-        const isChosen = selectedCategories.includes(a.name);
-        const opt = document.createElement('option');
-        opt.value = a.name;
-        opt.textContent = `${isChosen ? '✓ ' : ''}${a.num} — ${a.name} (${a.role})`;
-        if (isChosen) opt.disabled = true;
-        categoryDropdown.appendChild(opt);
-      });
-    }
-
-    function renderSelectedCategories() {
-      if (!selectedCatsContainer) return;
-      selectedCatsContainer.innerHTML = '';
-      if (selectedCategories.length === 0) {
-        selectedCatsContainer.innerHTML = '<span class="no-cats-placeholder">No categories chosen yet. Select 1 to 3 categories from the dropdown above.</span>';
-        if (catCounterPill) {
-          catCounterPill.textContent = '0 / 3 Selected';
-          catCounterPill.classList.remove('limit-reached');
-        }
-        if (categoryHidden) categoryHidden.value = '';
-        if (categoryDropdown) categoryDropdown.disabled = false;
-        populateCategoryDropdown();
-        return;
-      }
-
-      selectedCategories.forEach((catName, idx) => {
-        const chip = document.createElement('div');
-        chip.className = 'cat-chip';
-        chip.innerHTML = `
-          <span><strong>#${idx + 1}</strong> ${catName}</span>
-          <button type="button" class="remove-cat-btn" data-cat="${catName}" title="Remove category">&times;</button>
+        const item = document.createElement('label');
+        item.className = 'cat-checkbox-item';
+        item.dataset.cat = a.name;
+        item.innerHTML = `
+          <input type="checkbox" class="cat-checkbox-input" value="${a.name}">
+          <span class="cat-custom-checkbox" aria-hidden="true"></span>
+          <div class="cat-item-details">
+            <div class="cat-item-title-row">
+              <span class="cat-item-num">${a.num}</span>
+              <span class="cat-item-name">${a.name}</span>
+            </div>
+            <span class="cat-item-role">${a.role}</span>
+          </div>
         `;
-        selectedCatsContainer.appendChild(chip);
-      });
 
-      selectedCatsContainer.querySelectorAll('.remove-cat-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        const chk = item.querySelector('.cat-checkbox-input');
+        chk.addEventListener('change', (e) => {
           e.stopPropagation();
-          const toRemove = btn.dataset.cat;
-          selectedCategories = selectedCategories.filter(c => c !== toRemove);
-          if (catErrorNote) catErrorNote.style.display = 'none';
-          renderSelectedCategories();
+          handleCategoryToggle(a.name, chk.checked);
         });
+
+        catOptionsContainer.appendChild(item);
       });
-
-      if (categoryHidden) categoryHidden.value = selectedCategories.join(', ');
-      
-      if (catCounterPill) {
-        catCounterPill.textContent = `${selectedCategories.length} / 3 Selected`;
-        if (selectedCategories.length >= 3) {
-          catCounterPill.classList.add('limit-reached');
-          catCounterPill.textContent = '3 / 3 Selected (Max)';
-        } else {
-          catCounterPill.classList.remove('limit-reached');
-        }
-      }
-
-      if (categoryDropdown) {
-        categoryDropdown.disabled = selectedCategories.length >= 3;
-      }
-      populateCategoryDropdown();
     }
 
-    if (categoryDropdown) {
-      categoryDropdown.addEventListener('change', () => {
-        const chosen = categoryDropdown.value;
-        if (!chosen) return;
-        if (selectedCategories.includes(chosen)) {
-          categoryDropdown.value = '';
-          return;
-        }
+    function handleCategoryToggle(catName, isChecked) {
+      if (isChecked) {
         if (selectedCategories.length >= 3) {
+          // Revert checkbox state
+          const chk = catOptionsContainer.querySelector(`input[value="${catName}"]`);
+          if (chk) chk.checked = false;
+          if (catPanelHint) {
+            catPanelHint.textContent = 'Maximum 3 categories allowed! Uncheck one to choose another.';
+            catPanelHint.className = 'cat-panel-hint warn';
+          }
           if (catErrorNote) {
             catErrorNote.textContent = 'You can select a maximum of 3 award categories. Remove one to choose another.';
             catErrorNote.style.display = 'block';
           }
-          categoryDropdown.value = '';
           return;
         }
-        if (catErrorNote) catErrorNote.style.display = 'none';
-        selectedCategories.push(chosen);
-        renderSelectedCategories();
-        categoryDropdown.value = '';
-      });
-      populateCategoryDropdown();
+        if (!selectedCategories.includes(catName)) {
+          selectedCategories.push(catName);
+        }
+      } else {
+        selectedCategories = selectedCategories.filter(c => c !== catName);
+      }
+
+      if (catErrorNote) catErrorNote.style.display = 'none';
+      if (catPanelHint) {
+        catPanelHint.textContent = selectedCategories.length >= 3 ? '3 of 3 selected (Limit reached)' : 'Tick up to 3 categories';
+        catPanelHint.className = selectedCategories.length >= 3 ? 'cat-panel-hint warn' : 'cat-panel-hint';
+      }
+
+      renderCategoryState();
     }
+
+    function renderCategoryState() {
+      // 1. Update dropdown panel items checked and disabled states
+      if (catOptionsContainer) {
+        const atLimit = selectedCategories.length >= 3;
+        catOptionsContainer.querySelectorAll('.cat-checkbox-item').forEach(item => {
+          const val = item.dataset.cat;
+          const chk = item.querySelector('.cat-checkbox-input');
+          const isSelected = selectedCategories.includes(val);
+
+          if (chk) chk.checked = isSelected;
+          item.classList.toggle('is-checked', isSelected);
+
+          if (!isSelected && atLimit) {
+            item.classList.add('is-disabled');
+            if (chk) chk.disabled = true;
+          } else {
+            item.classList.remove('is-disabled');
+            if (chk) chk.disabled = false;
+          }
+        });
+      }
+
+      // 2. Update trigger button label and counter badges
+      const count = selectedCategories.length;
+      if (catBtnText) {
+        if (count === 0) {
+          catBtnText.innerHTML = '<span class="cat-btn-placeholder">Click to select award categories (max 3)...</span>';
+        } else {
+          catBtnText.textContent = `${count} Categor${count === 1 ? 'y' : 'ies'} Selected: ${selectedCategories.join(', ')}`;
+        }
+      }
+
+      if (catMiniCount) {
+        catMiniCount.textContent = `${count}/3`;
+        catMiniCount.classList.toggle('max-reached', count >= 3);
+      }
+
+      if (catPanelCounter) {
+        catPanelCounter.textContent = `${count} of 3 chosen`;
+      }
+
+      if (catCounterPill) {
+        catCounterPill.textContent = count >= 3 ? '3 / 3 Selected (Max)' : `${count} / 3 Selected`;
+        catCounterPill.classList.toggle('limit-reached', count >= 3);
+      }
+
+      // 3. Update hidden input for form validation and submission
+      if (categoryHidden) {
+        categoryHidden.value = selectedCategories.join(', ');
+      }
+
+      // 4. Render selected chips
+      if (selectedCatsContainer) {
+        selectedCatsContainer.innerHTML = '';
+        if (count === 0) {
+          selectedCatsContainer.innerHTML = '<span class="no-cats-placeholder">No categories chosen yet. Click the dropdown above and tick up to 3 checkboxes.</span>';
+        } else {
+          selectedCategories.forEach((catName, idx) => {
+            const chip = document.createElement('div');
+            chip.className = 'cat-chip';
+            chip.innerHTML = `
+              <span><strong>#${idx + 1}</strong> ${catName}</span>
+              <button type="button" class="remove-cat-btn" data-cat="${catName}" title="Remove category">&times;</button>
+            `;
+            selectedCatsContainer.appendChild(chip);
+          });
+
+          selectedCatsContainer.querySelectorAll('.remove-cat-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const toRemove = btn.dataset.cat;
+              handleCategoryToggle(toRemove, false);
+            });
+          });
+        }
+      }
+    }
+
+    // Dropdown toggle events
+    if (catDropdownTrigger && catDropdownPanel) {
+      catDropdownTrigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const isOpen = catDropdownPanel.classList.contains('open');
+        if (isOpen) {
+          closeCatDropdown();
+        } else {
+          openCatDropdown();
+        }
+      });
+
+      if (catPanelDoneBtn) {
+        catPanelDoneBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeCatDropdown();
+        });
+      }
+
+      // Close when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#catMultiSelect')) {
+          closeCatDropdown();
+        }
+      });
+
+      // Close on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && catDropdownPanel.classList.contains('open')) {
+          closeCatDropdown();
+        }
+      });
+    }
+
+    function openCatDropdown() {
+      if (!catDropdownPanel) return;
+      catDropdownPanel.classList.add('open');
+      catDropdownTrigger.classList.add('is-open');
+      catDropdownTrigger.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeCatDropdown() {
+      if (!catDropdownPanel) return;
+      catDropdownPanel.classList.remove('open');
+      catDropdownTrigger.classList.remove('is-open');
+      catDropdownTrigger.setAttribute('aria-expanded', 'false');
+    }
+
+    initCategoryCheckboxes();
+    renderCategoryState();
 
     /* Match pathways */
     document.querySelectorAll('.path').forEach(p => {
@@ -6255,13 +6731,13 @@
 
       if (selectedCategories.length === 0) {
         valid = false;
-        if (categoryDropdown) categoryDropdown.style.borderColor = '#c0392b';
+        if (catDropdownTrigger) catDropdownTrigger.style.borderColor = '#c0392b';
         if (catErrorNote) {
           catErrorNote.textContent = 'Please select at least 1 award category (up to 3 categories allowed).';
           catErrorNote.style.display = 'block';
         }
       } else {
-        if (categoryDropdown) categoryDropdown.style.borderColor = '';
+        if (catDropdownTrigger) catDropdownTrigger.style.borderColor = '';
         if (catErrorNote) catErrorNote.style.display = 'none';
       }
 
