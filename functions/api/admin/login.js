@@ -10,7 +10,7 @@ const CORS_HEADERS = {
   'Content-Type': 'application/json'
 };
 
-const DEFAULT_ADMIN_PASSWORD = 'Awadsmmc@123';
+const DEFAULT_ADMIN_PASSWORD = 'Awardsmmc@123';
 
 export async function onRequestPost(context) {
   const { request, env } = context;

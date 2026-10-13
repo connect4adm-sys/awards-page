@@ -6041,16 +6041,42 @@
         submitBtn.innerHTML = 'Submitting Nomination...';
       }
 
+      const rawName = (form.fullName ? form.fullName.value : '').trim();
+      const rawRole = form.role ? form.role.value : 'Principal';
+      const rawSchool = (form.school ? form.school.value : '').trim();
+      const rawCity = (form.city ? form.city.value : '').trim();
+      const rawEmail = (form.email ? form.email.value : '').trim();
+      const rawPhone = (form.phone ? form.phone.value : '').trim();
+      const rawCategory = form.category ? form.category.value : '';
+
+      const localId = 'NOM-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(100 + Math.random() * 900);
+      const nowIso = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
       const nominationData = {
-        fullName: (form.fullName ? form.fullName.value : '').trim(),
-        role: form.role ? form.role.value : '',
-        school: (form.school ? form.school.value : '').trim(),
-        city: (form.city ? form.city.value : '').trim(),
-        email: (form.email ? form.email.value : '').trim(),
-        phone: (form.phone ? form.phone.value : '').trim(),
-        category: form.category ? form.category.value : ''
+        id: localId,
+        full_name: rawName,
+        fullName: rawName,
+        role: rawRole,
+        school: rawSchool,
+        city: rawCity,
+        email: rawEmail,
+        phone: rawPhone,
+        category: rawCategory,
+        created_at: nowIso,
+        status: 'Pending',
+        is_local: true
       };
 
+      // 1. Immediately store in localStorage buffer so nomination is never lost
+      try {
+        const stored = JSON.parse(localStorage.getItem('mmc_awards_nominations') || '[]');
+        stored.unshift(nominationData);
+        localStorage.setItem('mmc_awards_nominations', JSON.stringify(stored));
+      } catch (storageErr) {
+        console.warn('LocalStorage save notice:', storageErr);
+      }
+
+      // 2. Transmit to backend API (/api/submit) -> saves in D1 or server.js
       try {
         const response = await fetch('/api/submit', {
           method: 'POST',
@@ -6058,11 +6084,18 @@
           body: JSON.stringify(nominationData)
         });
         const result = await response.json();
-        if (!result.success && result.error) {
-          console.warn('Submission notice:', result.error);
+        if (result && result.success && result.id) {
+          try {
+            const stored = JSON.parse(localStorage.getItem('mmc_awards_nominations') || '[]');
+            if (stored.length > 0 && stored[0].id === localId) {
+              stored[0].id = result.id;
+              stored[0].synced = true;
+              localStorage.setItem('mmc_awards_nominations', JSON.stringify(stored));
+            }
+          } catch(e) {}
         }
       } catch (err) {
-        console.error('Network submission notice:', err);
+        console.warn('Network submission notice (stored in local buffer):', err);
       }
 
       form.style.display = 'none';

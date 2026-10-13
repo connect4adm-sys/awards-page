@@ -7,8 +7,10 @@
   'use strict';
 
   const TOKEN_KEY = 'awards_admin_token';
+  const LOCAL_STORAGE_KEY = 'mmc_awards_nominations';
   const D1_NAME = 'awards-data';
   const D1_KEY = '47a46db1-2e59-4595-bcf5-01ee1fd29210';
+  const ADMIN_PASSWORD_FALLBACK = 'Awardsmmc@123';
 
   // 25 National Award Categories
   const AWARD_CATEGORIES = [
@@ -240,9 +242,9 @@
         showLoginError(data.error || 'Invalid password. Please verify your credentials.');
       }
     } catch (err) {
-      // In offline / fallback scenario, check password directly
-      if (password === 'Awadsmmc@123') {
-        const fallbackToken = btoa(`Awadsmmc@123:session_${Date.now()}`);
+      // In offline / local file / fallback scenario, check password directly
+      if (password === ADMIN_PASSWORD_FALLBACK) {
+        const fallbackToken = btoa(`${ADMIN_PASSWORD_FALLBACK}:session_${Date.now()}`);
         sessionStorage.setItem(TOKEN_KEY, fallbackToken);
         showDashboard();
         fetchSubmissions();
@@ -267,7 +269,7 @@
     showLogin();
   }
 
-  // Fetch Submissions from D1 API
+  // Fetch Submissions from D1 API + Merge with LocalStorage Buffer
   async function fetchSubmissions() {
     const token = sessionStorage.getItem(TOKEN_KEY);
     if (!token) return;
@@ -276,6 +278,9 @@
     nominationsTableBody.innerHTML = '';
     emptyState.style.display = 'none';
     syncStatus.textContent = 'Syncing...';
+
+    let serverList = [];
+    let d1Connected = true;
 
     try {
       const res = await fetch('/api/admin/submissions', {
@@ -294,22 +299,103 @@
       const result = await res.json();
 
       if (result.success && Array.isArray(result.data)) {
-        rawSubmissions = result.data;
-        updateKpis(rawSubmissions);
-        applyFilters();
-        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        syncStatus.textContent = `Synced at ${now}`;
+        serverList = result.data;
       } else {
-        throw new Error(result.error || 'Failed to load records');
+        d1Connected = false;
+        console.warn('D1 notice:', result.error || result.warning);
       }
-
     } catch (err) {
-      console.error('Fetch error:', err);
-      syncStatus.textContent = 'Sync Error';
-      emptyStateMsg.textContent = 'Unable to reach Cloudflare D1 database. Check network or permissions.';
-      emptyState.style.display = 'block';
-    } finally {
-      tableLoading.style.display = 'none';
+      d1Connected = false;
+      console.warn('API fetch notice:', err);
+    }
+
+    // Read any locally buffered submissions from localStorage
+    let localList = [];
+    try {
+      localList = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+      if (!Array.isArray(localList)) localList = [];
+    } catch (e) {
+      localList = [];
+    }
+
+    // Attempt background sync of unsynced local submissions to backend
+    if (d1Connected && localList.length > 0) {
+      syncLocalSubmissionsToBackend(localList);
+    }
+
+    // Deduplicate and merge server records + local records
+    const combined = [...serverList];
+    localList.forEach(localItem => {
+      // Check if this record already exists in server list
+      const exists = combined.some(s => {
+        if (s.id && localItem.id && String(s.id) === String(localItem.id)) return true;
+        if (s.email && localItem.email && s.email.toLowerCase().trim() === localItem.email.toLowerCase().trim()) {
+          if (s.category === localItem.category) return true;
+        }
+        return false;
+      });
+
+      if (!exists) {
+        // Ensure consistent field naming
+        combined.unshift({
+          id: localItem.id || ('LOC-' + Math.floor(Math.random() * 1000)),
+          full_name: localItem.full_name || localItem.fullName || 'Nominee',
+          role: localItem.role || 'Principal',
+          school: localItem.school || 'School',
+          city: localItem.city || 'India',
+          email: localItem.email || '—',
+          phone: localItem.phone || '—',
+          category: localItem.category || 'General',
+          created_at: localItem.created_at || new Date().toISOString().replace('T', ' ').substring(0, 19),
+          status: localItem.status || 'Pending',
+          is_local: true
+        });
+      }
+    });
+
+    rawSubmissions = combined;
+    updateKpis(rawSubmissions);
+    applyFilters();
+
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (d1Connected) {
+      syncStatus.textContent = `Connected · Synced ${now}`;
+      syncStatus.style.color = '#2ecc71';
+    } else {
+      syncStatus.textContent = `Local Buffer Active · ${now}`;
+      syncStatus.style.color = '#f39c12';
+    }
+
+    tableLoading.style.display = 'none';
+  }
+
+  // Background sync helper
+  async function syncLocalSubmissionsToBackend(localList) {
+    const unsynced = localList.filter(item => !item.synced);
+    for (const item of unsynced) {
+      try {
+        const res = await fetch('/api/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fullName: item.full_name || item.fullName,
+            role: item.role,
+            school: item.school,
+            city: item.city,
+            email: item.email,
+            phone: item.phone,
+            category: item.category
+          })
+        });
+        const d = await res.json();
+        if (d && d.success) {
+          item.synced = true;
+          if (d.id) item.id = d.id;
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localList));
+        }
+      } catch (e) {
+        // ignore background sync errors
+      }
     }
   }
 
@@ -415,7 +501,8 @@
       else if (roleLower.includes('counsel')) roleClass = 'role-counsellor';
 
       // Avatar initials
-      const names = (item.full_name || 'N A').trim().split(/\s+/);
+      const rawFullName = item.full_name || item.fullName || 'Nominee';
+      const names = rawFullName.trim().split(/\s+/);
       const initials = names.length > 1 
         ? (names[0][0] + names[names.length - 1][0]).toUpperCase()
         : names[0].substring(0, 2).toUpperCase();
@@ -429,7 +516,7 @@
           <div class="nominee-cell">
             <div class="avatar-badge">${initials}</div>
             <div>
-              <div class="nominee-name">${escapeHtml(item.full_name || '—')}</div>
+              <div class="nominee-name">${escapeHtml(rawFullName)}</div>
               <span class="role-pill ${roleClass}">${escapeHtml(item.role || 'Leader')}</span>
             </div>
           </div>
@@ -479,78 +566,90 @@
 
       // Delete listener
       const delBtn = tr.querySelector('.btn-action-delete');
-      delBtn.addEventListener('click', () => deleteSubmission(item.id, item.full_name));
+      delBtn.addEventListener('click', () => deleteSubmission(item.id, rawFullName));
 
       nominationsTableBody.appendChild(tr);
     });
   }
 
-  // Update Status in D1
+  // Update Status in D1 and LocalStorage
   async function updateSubmissionStatus(id, newStatus) {
     const token = sessionStorage.getItem(TOKEN_KEY);
-    if (!token) return;
 
+    // Update in local array
+    const record = rawSubmissions.find(r => String(r.id) === String(id));
+    if (record) record.status = newStatus;
+    if (activeModalRecord && String(activeModalRecord.id) === String(id)) {
+      modalStatus.textContent = newStatus;
+      modalStatusSelect.value = newStatus;
+    }
+
+    // Update in localStorage
     try {
-      const res = await fetch('/api/admin/submissions', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ id, status: newStatus })
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        // Update local object
-        const record = rawSubmissions.find(r => r.id === id);
-        if (record) record.status = newStatus;
-        if (activeModalRecord && activeModalRecord.id === id) {
-          modalStatus.textContent = newStatus;
-          modalStatusSelect.value = newStatus;
-        }
-      } else {
-        alert(data.error || 'Failed to update nomination status');
+      const stored = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+      const loc = stored.find(s => String(s.id) === String(id));
+      if (loc) {
+        loc.status = newStatus;
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stored));
       }
-    } catch (err) {
-      console.error('Update status error:', err);
+    } catch (e) {}
+
+    // Update via backend API if authenticated
+    if (token) {
+      try {
+        await fetch('/api/admin/submissions', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ id, status: newStatus })
+        });
+      } catch (err) {
+        console.warn('Backend status update notice:', err);
+      }
     }
   }
 
-  // Delete Record in D1
+  // Delete Record in D1 and LocalStorage
   async function deleteSubmission(id, name) {
     if (!confirm(`Are you sure you want to remove nomination #${id} (${name})? This cannot be undone.`)) {
       return;
     }
 
-    const token = sessionStorage.getItem(TOKEN_KEY);
-    if (!token) return;
+    // Remove from local state
+    rawSubmissions = rawSubmissions.filter(r => String(r.id) !== String(id));
+    updateKpis(rawSubmissions);
+    applyFilters();
 
+    // Remove from localStorage
     try {
-      const res = await fetch(`/api/admin/submissions?id=${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      let stored = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+      stored = stored.filter(s => String(s.id) !== String(id));
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stored));
+    } catch (e) {}
 
-      const data = await res.json();
-      if (res.ok && data.success) {
-        rawSubmissions = rawSubmissions.filter(r => r.id !== id);
-        updateKpis(rawSubmissions);
-        applyFilters();
-      } else {
-        alert(data.error || 'Failed to delete nomination');
+    // Remove via backend API if authenticated
+    const token = sessionStorage.getItem(TOKEN_KEY);
+    if (token) {
+      try {
+        await fetch(`/api/admin/submissions?id=${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      } catch (err) {
+        console.warn('Backend delete notice:', err);
       }
-    } catch (err) {
-      console.error('Delete error:', err);
     }
   }
 
   // Open Dossier Modal
   function openModal(item) {
     activeModalRecord = item;
-    modalNomineeName.textContent = item.full_name || 'Nominee';
+    const name = item.full_name || item.fullName || 'Nominee';
+    modalNomineeName.textContent = name;
     modalCategoryBadge.textContent = item.category || 'General';
     modalId.textContent = `#${item.id}`;
     modalDate.textContent = item.created_at || '—';
@@ -593,7 +692,7 @@
 
     const rows = rawSubmissions.map(item => [
       item.id,
-      `"${(item.full_name || '').replace(/"/g, '""')}"`,
+      `"${(item.full_name || item.fullName || '').replace(/"/g, '""')}"`,
       `"${(item.role || '').replace(/"/g, '""')}"`,
       `"${(item.school || '').replace(/"/g, '""')}"`,
       `"${(item.city || '').replace(/"/g, '""')}"`,

@@ -6,7 +6,7 @@ let port = parseInt(process.env.PORT, 10) || 3000;
 const PUBLIC_DIR = __dirname;
 const DATA_DIR = path.join(__dirname, 'data');
 const DB_FILE = path.join(DATA_DIR, 'nominations.json');
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Awadsmmc@123';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Awardsmmc@123';
 
 // Ensure data folder and file exist for local mock storage
 if (!fs.existsSync(DATA_DIR)) {

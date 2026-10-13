@@ -10,7 +10,7 @@ const CORS_HEADERS = {
   'Content-Type': 'application/json'
 };
 
-const DEFAULT_ADMIN_PASSWORD = 'Awadsmmc@123';
+const DEFAULT_ADMIN_PASSWORD = 'Awardsmmc@123';
 
 function isAuthorized(request, env) {
   const auth = request.headers.get('Authorization') || '';
@@ -35,13 +35,18 @@ export async function onRequestGet(context) {
     });
   }
 
-  const db = env.DB || env['awards-data'] || env.AWARDS_DATA;
+  const db = env.DB || env['awards-data'] || env.awards_data || env.AWARDS_DATA || env.AWARDS_DB;
   if (!db) {
     return new Response(JSON.stringify({
-      success: false,
-      error: "D1 Database binding 'DB' not configured. Bind D1 'awards-data' to variable 'DB' in Cloudflare Pages."
+      success: true,
+      database: 'awards-data',
+      databaseId: '47a46db1-2e59-4595-bcf5-01ee1fd29210',
+      count: 0,
+      data: [],
+      d1_connected: false,
+      warning: "D1 Database binding 'DB' not configured. Bind D1 'awards-data' to variable 'DB' in Cloudflare Pages Settings."
     }), {
-      status: 500,
+      status: 200,
       headers: CORS_HEADERS
     });
   }
@@ -72,7 +77,8 @@ export async function onRequestGet(context) {
       database: 'awards-data',
       databaseId: '47a46db1-2e59-4595-bcf5-01ee1fd29210',
       count: results ? results.length : 0,
-      data: results || []
+      data: results || [],
+      d1_connected: true
     }), {
       status: 200,
       headers: CORS_HEADERS
@@ -96,7 +102,7 @@ export async function onRequestPatch(context) {
     });
   }
 
-  const db = env.DB || env['awards-data'] || env.AWARDS_DATA;
+  const db = env.DB || env['awards-data'] || env.awards_data || env.AWARDS_DATA || env.AWARDS_DB;
   if (!db) {
     return new Response(JSON.stringify({ success: false, error: 'D1 Database not bound' }), {
       status: 500,
@@ -141,7 +147,7 @@ export async function onRequestDelete(context) {
     });
   }
 
-  const db = env.DB || env['awards-data'] || env.AWARDS_DATA;
+  const db = env.DB || env['awards-data'] || env.awards_data || env.AWARDS_DATA || env.AWARDS_DB;
   if (!db) {
     return new Response(JSON.stringify({ success: false, error: 'D1 Database not bound' }), {
       status: 500,
