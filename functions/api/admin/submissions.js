@@ -43,6 +43,7 @@ export async function onRequestGet(context) {
       databaseId: '47a46db1-2e59-4595-bcf5-01ee1fd29210',
       count: 0,
       data: [],
+      google_sheet_webhook: env.GOOGLE_SHEET_WEBHOOK_URL || '',
       d1_connected: false,
       warning: "D1 Database binding 'DB' not configured. Bind D1 'awards-data' to variable 'DB' in Cloudflare Pages Settings."
     }), {
@@ -78,6 +79,7 @@ export async function onRequestGet(context) {
       databaseId: '47a46db1-2e59-4595-bcf5-01ee1fd29210',
       count: results ? results.length : 0,
       data: results || [],
+      google_sheet_webhook: env.GOOGLE_SHEET_WEBHOOK_URL || '',
       d1_connected: true
     }), {
       status: 200,

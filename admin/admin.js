@@ -11,6 +11,129 @@
   const D1_NAME = 'awards-data';
   const D1_KEY = '47a46db1-2e59-4595-bcf5-01ee1fd29210';
   const ADMIN_PASSWORD_FALLBACK = 'Awardsmmc@123';
+  const GOOGLE_SHEET_KEY = 'mmc_google_sheet_webhook';
+
+  const APPS_SCRIPT_CODE = `/**
+ * ============================================================
+ * EDUCATION MENTOR AWARDS — GOOGLE APPS SCRIPT WEBHOOK
+ * ============================================================
+ * 
+ * INSTRUCTIONS TO CONNECT GOOGLE SHEET:
+ * 1. Open your Google Sheet (create a blank one at sheets.new).
+ * 2. In the top menu, click: Extensions → Apps Script.
+ * 3. Delete any existing code, and paste this ENTIRE block.
+ * 4. Click "Save" (Disk icon or Ctrl+S).
+ * 5. In the top right corner, click: Deploy → New deployment.
+ * 6. Click the gear icon (⚙️) next to "Select type" and choose "Web app".
+ * 7. Set the settings:
+ *    - Description: Education Mentor Awards Webhook
+ *    - Execute as: "Me" (your email)
+ *    - Who has access: "Anyone" (IMPORTANT: must be "Anyone")
+ * 8. Click "Deploy", authorize access when prompted.
+ * 9. Copy the "Web app URL" (ends in /exec).
+ * 10. Open Admin Portal, click "Google Sheet", paste URL & Save!
+ */
+
+function doPost(e) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getActiveSheet();
+    
+    // Ensure Sheet Headers Exist
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow([
+        "Timestamp",
+        "ID",
+        "Full Name",
+        "Role",
+        "School / Institution",
+        "City",
+        "Email",
+        "Phone",
+        "Award Category",
+        "Review Status"
+      ]);
+      
+      var headerRange = sheet.getRange(1, 1, 1, 10);
+      headerRange.setFontWeight("bold");
+      headerRange.setBackground("#0b111c");
+      headerRange.setFontColor("#dfba73");
+      headerRange.setFontFamily("Arial");
+      headerRange.setHorizontalAlignment("center");
+      sheet.setFrozenRows(1);
+    }
+    
+    if (!e || !e.postData || !e.postData.contents) {
+      return ContentService.createTextOutput(JSON.stringify({
+        success: false,
+        error: "No payload received"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    var payload = JSON.parse(e.postData.contents);
+    
+    // Support Batch Sync (Array of nominations from Admin Dashboard)
+    if (Array.isArray(payload)) {
+      var rows = [];
+      for (var i = 0; i < payload.length; i++) {
+        var item = payload[i];
+        rows.push([
+          item.created_at || new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+          item.id || "",
+          item.full_name || item.fullName || "",
+          item.role || "",
+          item.school || "",
+          item.city || "",
+          item.email || "",
+          item.phone || "",
+          item.category || "",
+          item.status || "Pending"
+        ]);
+      }
+      if (rows.length > 0) {
+        sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, 10).setValues(rows);
+      }
+      return ContentService.createTextOutput(JSON.stringify({
+        success: true,
+        count: rows.length,
+        message: rows.length + " nominations synced successfully"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // Support Single Submission (From Landing Page Form)
+    sheet.appendRow([
+      payload.created_at || new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+      payload.id || "",
+      payload.full_name || payload.fullName || "",
+      payload.role || "",
+      payload.school || "",
+      payload.city || "",
+      payload.email || "",
+      payload.phone || "",
+      payload.category || "",
+      payload.status || "Pending"
+    ]);
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      success: true,
+      message: "Nomination appended to Google Sheet"
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      error: err.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "active",
+    service: "Education Mentor Awards Google Sheet Sync",
+    timestamp: new Date().toISOString()
+  })).setMimeType(ContentService.MimeType.JSON);
+}`;
 
   // 25 Education Mentor Award Categories
   const AWARD_CATEGORIES = [
@@ -96,6 +219,21 @@
   const modalCategory = document.getElementById('modalCategory');
   const modalStatusSelect = document.getElementById('modalStatusSelect');
 
+  // DOM Elements - Google Sheet Modal
+  const googleSheetBtn = document.getElementById('googleSheetBtn');
+  const sheetBtnText = document.getElementById('sheetBtnText');
+  const sheetModal = document.getElementById('sheetModal');
+  const sheetModalCloseBtn = document.getElementById('sheetModalCloseBtn');
+  const sheetModalDoneBtn = document.getElementById('sheetModalDoneBtn');
+  const sheetConnectionBadge = document.getElementById('sheetConnectionBadge');
+  const sheetWebhookInput = document.getElementById('sheetWebhookInput');
+  const saveSheetUrlBtn = document.getElementById('saveSheetUrlBtn');
+  const sheetMsg = document.getElementById('sheetMsg');
+  const syncAllSheetBtn = document.getElementById('syncAllSheetBtn');
+  const testSheetBtn = document.getElementById('testSheetBtn');
+  const copyAppsScriptBtn = document.getElementById('copyAppsScriptBtn');
+  const copyScriptText = document.getElementById('copyScriptText');
+
   // State Store
   let rawSubmissions = [];
   let filteredSubmissions = [];
@@ -105,6 +243,7 @@
   function init() {
     populateCategoryFilter();
     setupEventListeners();
+    updateSheetBadgeAndStatus();
     checkAuthSession();
   }
 
@@ -185,10 +324,24 @@
       }
     });
 
-    // Escape key closes modal
+    // Google Sheet Modal Events
+    googleSheetBtn.addEventListener('click', openSheetModal);
+    sheetModalCloseBtn.addEventListener('click', closeSheetModal);
+    sheetModalDoneBtn.addEventListener('click', closeSheetModal);
+    sheetModal.addEventListener('click', (e) => {
+      if (e.target === sheetModal) closeSheetModal();
+    });
+
+    saveSheetUrlBtn.addEventListener('click', saveGoogleSheetWebhook);
+    syncAllSheetBtn.addEventListener('click', syncAllToGoogleSheet);
+    testSheetBtn.addEventListener('click', sendTestRowToGoogleSheet);
+    copyAppsScriptBtn.addEventListener('click', copyAppsScriptCode);
+
+    // Escape key closes modals
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && dossierModal.style.display === 'flex') {
-        closeModal();
+      if (e.key === 'Escape') {
+        if (dossierModal.style.display === 'flex') closeModal();
+        if (sheetModal.style.display === 'flex') closeSheetModal();
       }
     });
   }
@@ -300,6 +453,10 @@
 
       if (result.success && Array.isArray(result.data)) {
         serverList = result.data;
+        if (result.google_sheet_webhook && !localStorage.getItem(GOOGLE_SHEET_KEY)) {
+          localStorage.setItem(GOOGLE_SHEET_KEY, result.google_sheet_webhook);
+          updateSheetBadgeAndStatus();
+        }
       } else {
         d1Connected = false;
         console.warn('D1 notice:', result.error || result.warning);
@@ -715,6 +872,158 @@
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  }
+
+  // ============================================================
+  // GOOGLE SHEET SYNCHRONIZATION HANDLERS
+  // ============================================================
+
+  function updateSheetBadgeAndStatus() {
+    const url = localStorage.getItem(GOOGLE_SHEET_KEY);
+    if (url && url.startsWith('http')) {
+      sheetConnectionBadge.textContent = 'Connected';
+      sheetConnectionBadge.className = 'sheet-status-badge badge-connected';
+      sheetBtnText.textContent = 'Google Sheet (Active)';
+      googleSheetBtn.classList.add('is-connected');
+      if (sheetWebhookInput) sheetWebhookInput.value = url;
+    } else {
+      sheetConnectionBadge.textContent = 'Not Connected';
+      sheetConnectionBadge.className = 'sheet-status-badge badge-pending';
+      sheetBtnText.textContent = 'Google Sheet';
+      googleSheetBtn.classList.remove('is-connected');
+    }
+  }
+
+  function openSheetModal() {
+    updateSheetBadgeAndStatus();
+    sheetMsg.style.display = 'none';
+    sheetMsg.textContent = '';
+    sheetModal.style.display = 'flex';
+  }
+
+  function closeSheetModal() {
+    sheetModal.style.display = 'none';
+  }
+
+  function saveGoogleSheetWebhook() {
+    const url = (sheetWebhookInput.value || '').trim();
+    if (!url) {
+      localStorage.removeItem(GOOGLE_SHEET_KEY);
+      updateSheetBadgeAndStatus();
+      showSheetMsg('Google Sheet webhook disconnected.', 'error');
+      return;
+    }
+    if (!url.startsWith('https://')) {
+      showSheetMsg('Please enter a valid HTTPS URL (e.g. https://script.google.com/macros/s/.../exec)', 'error');
+      return;
+    }
+    localStorage.setItem(GOOGLE_SHEET_KEY, url);
+    updateSheetBadgeAndStatus();
+    showSheetMsg('Webhook URL saved! Real-time synchronization is now active.', 'success');
+  }
+
+  async function sendTestRowToGoogleSheet() {
+    const url = (sheetWebhookInput.value || localStorage.getItem(GOOGLE_SHEET_KEY) || '').trim();
+    if (!url || !url.startsWith('https://')) {
+      showSheetMsg('Please enter and save a valid Google Apps Script Web App URL first.', 'error');
+      return;
+    }
+
+    testSheetBtn.disabled = true;
+    const originalText = testSheetBtn.textContent;
+    testSheetBtn.textContent = 'Sending Test...';
+
+    const testPayload = {
+      id: 'TEST-' + Math.floor(100 + Math.random() * 900),
+      full_name: 'Dr. Test Leader (Verification)',
+      role: 'Principal',
+      school: 'Demo School of Excellence',
+      city: 'New Delhi',
+      email: 'verification@education-mentor.in',
+      phone: '+91 99999 11111',
+      category: 'Best School Leadership Award',
+      created_at: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+      status: 'Verified'
+    };
+
+    try {
+      await fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(testPayload)
+      });
+      showSheetMsg('✓ Test record dispatched to your Google Sheet! Please check your spreadsheet.', 'success');
+    } catch (err) {
+      showSheetMsg('Error dispatching test record: ' + err.message, 'error');
+    } finally {
+      testSheetBtn.disabled = false;
+      testSheetBtn.textContent = originalText;
+    }
+  }
+
+  async function syncAllToGoogleSheet() {
+    const url = (sheetWebhookInput.value || localStorage.getItem(GOOGLE_SHEET_KEY) || '').trim();
+    if (!url || !url.startsWith('https://')) {
+      showSheetMsg('Please enter and save a valid Google Apps Script Web App URL first.', 'error');
+      return;
+    }
+
+    if (!rawSubmissions || rawSubmissions.length === 0) {
+      showSheetMsg('No nominations found to sync.', 'error');
+      return;
+    }
+
+    syncAllSheetBtn.disabled = true;
+    const btnSpan = syncAllSheetBtn.querySelector('span');
+    const originalText = btnSpan ? btnSpan.textContent : 'Sync All to Google Sheet';
+    if (btnSpan) btnSpan.textContent = `Syncing ${rawSubmissions.length} records...`;
+
+    try {
+      await fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(rawSubmissions)
+      });
+      showSheetMsg(`✓ Successfully synced ${rawSubmissions.length} nominations to your Google Sheet!`, 'success');
+    } catch (err) {
+      showSheetMsg('Error syncing nominations to Google Sheet: ' + err.message, 'error');
+    } finally {
+      syncAllSheetBtn.disabled = false;
+      if (btnSpan) btnSpan.textContent = originalText;
+    }
+  }
+
+  async function copyAppsScriptCode() {
+    try {
+      await navigator.clipboard.writeText(APPS_SCRIPT_CODE);
+      copyScriptText.textContent = '✓ Apps Script Code Copied!';
+      copyAppsScriptBtn.style.borderColor = '#2ecc71';
+      copyAppsScriptBtn.style.color = '#2ecc71';
+      setTimeout(() => {
+        copyScriptText.textContent = 'Copy Ready-to-Use Apps Script Code';
+        copyAppsScriptBtn.style.borderColor = '';
+        copyAppsScriptBtn.style.color = '';
+      }, 3000);
+    } catch (err) {
+      const textarea = document.createElement('textarea');
+      textarea.value = APPS_SCRIPT_CODE;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      copyScriptText.textContent = '✓ Apps Script Code Copied!';
+      setTimeout(() => {
+        copyScriptText.textContent = 'Copy Ready-to-Use Apps Script Code';
+      }, 3000);
+    }
+  }
+
+  function showSheetMsg(text, type) {
+    sheetMsg.textContent = text;
+    sheetMsg.className = `sheet-msg msg-${type}`;
+    sheetMsg.style.display = 'block';
   }
 
   // Helper escape

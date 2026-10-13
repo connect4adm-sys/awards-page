@@ -80,6 +80,43 @@ export async function onRequestPost(context) {
 
     const insertId = result.meta && result.meta.last_row_id ? result.meta.last_row_id : Date.now();
 
+    // Asynchronously forward to Google Sheet Webhook if configured
+    const sheetWebhook = env.GOOGLE_SHEET_WEBHOOK_URL;
+    if (sheetWebhook && sheetWebhook.startsWith('http')) {
+      try {
+        const sheetPayload = {
+          id: insertId,
+          full_name: fullName.trim(),
+          role: role || 'Principal',
+          school: school.trim(),
+          city: city ? city.trim() : '',
+          email: email.trim().toLowerCase(),
+          phone: phone.trim(),
+          category: category.trim(),
+          created_at: new Date().toISOString().replace('T', ' ').substring(0, 19),
+          status: 'Pending'
+        };
+
+        if (context.waitUntil) {
+          context.waitUntil(
+            fetch(sheetWebhook, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(sheetPayload)
+            }).catch(e => console.warn('Google Sheet forward warning:', e))
+          );
+        } else {
+          fetch(sheetWebhook, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(sheetPayload)
+          }).catch(e => console.warn('Google Sheet forward warning:', e));
+        }
+      } catch (sheetErr) {
+        console.warn('Google Sheet dispatch warning:', sheetErr);
+      }
+    }
+
     return new Response(JSON.stringify({
       success: true,
       id: insertId,

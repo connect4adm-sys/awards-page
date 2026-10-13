@@ -6098,6 +6098,19 @@
         console.warn('Network submission notice (stored in local buffer):', err);
       }
 
+      // 3. Forward to configured Google Sheet Webhook if present
+      try {
+        const sheetWebhook = localStorage.getItem('mmc_google_sheet_webhook');
+        if (sheetWebhook && sheetWebhook.startsWith('http')) {
+          fetch(sheetWebhook, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(nominationData)
+          }).catch(e => console.warn('Sheet webhook notice:', e));
+        }
+      } catch (sheetErr) {}
+
       form.style.display = 'none';
       formSuccess.classList.add('on');
       formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });

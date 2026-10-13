@@ -7,6 +7,7 @@ const PUBLIC_DIR = __dirname;
 const DATA_DIR = path.join(__dirname, 'data');
 const DB_FILE = path.join(DATA_DIR, 'nominations.json');
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Awardsmmc@123';
+const GOOGLE_SHEET_WEBHOOK_URL = process.env.GOOGLE_SHEET_WEBHOOK_URL || '';
 
 // Ensure data folder and file exist for local mock storage
 if (!fs.existsSync(DATA_DIR)) {
@@ -155,6 +156,28 @@ const server = http.createServer(async (req, res) => {
     items.unshift(record);
     saveNominations(items);
 
+    if (GOOGLE_SHEET_WEBHOOK_URL && GOOGLE_SHEET_WEBHOOK_URL.startsWith('http')) {
+      try {
+        const https = require(GOOGLE_SHEET_WEBHOOK_URL.startsWith('https') ? 'https' : 'http');
+        const urlObj = new URL(GOOGLE_SHEET_WEBHOOK_URL);
+        const reqData = JSON.stringify(record);
+        const postReq = https.request({
+          hostname: urlObj.hostname,
+          path: urlObj.pathname + urlObj.search,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(reqData)
+          }
+        });
+        postReq.on('error', (err) => console.warn('Local Google Sheet forward warning:', err.message));
+        postReq.write(reqData);
+        postReq.end();
+      } catch (e) {
+        console.warn('Local Sheet forward err:', e.message);
+      }
+    }
+
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
@@ -198,7 +221,8 @@ const server = http.createServer(async (req, res) => {
       database: 'awards-data',
       databaseId: '47a46db1-2e59-4595-bcf5-01ee1fd29210',
       count: items.length,
-      data: items
+      data: items,
+      google_sheet_webhook: GOOGLE_SHEET_WEBHOOK_URL || ''
     }));
     return;
   }

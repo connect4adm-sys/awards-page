@@ -9,3 +9,4 @@ database_id = "47a46db1-2e59-4595-bcf5-01ee1fd29210"
 
 [vars]
 ADMIN_PASSWORD = "Awardsmmc@123"
+GOOGLE_SHEET_WEBHOOK_URL = ""
