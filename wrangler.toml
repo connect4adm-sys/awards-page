@@ -1,0 +1,11 @@
+name = "awards-page"
+compatibility_date = "2024-04-05"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "awards-data"
+database_id = "47a46db1-2e59-4595-bcf5-01ee1fd29210"
+
+[vars]
+ADMIN_PASSWORD = "Awadsmmc@123"

@@ -14,4 +14,5 @@ nav_logo_*.png
 .DS_Store
 Thumbs.db
 .vscode/
-.idea/
+# Local mock data
+data/
