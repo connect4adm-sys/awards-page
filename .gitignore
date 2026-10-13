@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Test & verification artifacts
+cert_*.png
+cert_*.pdf
+downloaded_cert_*.png
+verified_*.png
+verified_*.pdf
+nav_logo_*.png
+*.pdf
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

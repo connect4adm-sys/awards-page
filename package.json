@@ -1,0 +1,20 @@
+
+{
+  "name": "k-12-visionary-awards-landing",
+  "version": "1.0.0",
+  "description": "Education Mentor Awards 2026 Pan-India Edition",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "serve": "node server.js"
+  },
+  "keywords": [
+    "k-12",
+    "awards",
+    "education",
+    "cloudflare-pages"
+  ],
+  "author": "My Mentor Circle",
+  "license": "ISC"
+}
