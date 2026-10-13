@@ -28,17 +28,58 @@ export async function onRequestPost(context) {
       });
     }
 
+    // Helper to forward to Google Sheet Webhook if configured
+    const sheetWebhook = env.GOOGLE_SHEET_WEBHOOK_URL;
+    const forwardToSheet = async (recordId) => {
+      if (sheetWebhook && sheetWebhook.startsWith('http')) {
+        try {
+          const sheetPayload = {
+            id: recordId,
+            full_name: fullName.trim(),
+            role: role || 'Principal',
+            school: school.trim(),
+            city: city ? city.trim() : '',
+            email: email.trim().toLowerCase(),
+            phone: phone.trim(),
+            category: category.trim(),
+            created_at: new Date().toISOString().replace('T', ' ').substring(0, 19),
+            status: 'Pending'
+          };
+
+          if (context.waitUntil) {
+            context.waitUntil(
+              fetch(sheetWebhook, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(sheetPayload)
+              }).catch(e => console.warn('Google Sheet forward warning:', e))
+            );
+          } else {
+            await fetch(sheetWebhook, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(sheetPayload)
+            }).catch(e => console.warn('Google Sheet forward warning:', e));
+          }
+        } catch (sheetErr) {
+          console.warn('Google Sheet dispatch warning:', sheetErr);
+        }
+      }
+    };
+
     // Connect to Cloudflare D1 Database binding
     const db = env.DB || env['awards-data'] || env.awards_data || env.AWARDS_DATA || env.AWARDS_DB;
 
     if (!db) {
-      // If D1 is not bound yet in Cloudflare dashboard, return success with notice
-      // so the browser stores it in local buffer and user is not blocked
-      console.warn("Cloudflare D1 Database binding 'DB' not detected. Stored in client buffer.");
+      // If D1 is not bound yet in Cloudflare dashboard, forward to Google Sheet if configured
+      // and return success with notice so browser stores in local buffer
+      const fallbackId = 'D1-PENDING-' + Date.now().toString(36).toUpperCase();
+      await forwardToSheet(fallbackId);
+      console.warn("Cloudflare D1 Database binding 'DB' not detected. Stored in client buffer and forwarded to sheet if active.");
       return new Response(JSON.stringify({
         success: true,
         buffered: true,
-        id: 'D1-PENDING-' + Date.now().toString(36).toUpperCase(),
+        id: fallbackId,
         message: 'Nomination recorded. Cloudflare D1 binding pending.'
       }), {
         status: 200,
@@ -81,41 +122,7 @@ export async function onRequestPost(context) {
     const insertId = result.meta && result.meta.last_row_id ? result.meta.last_row_id : Date.now();
 
     // Asynchronously forward to Google Sheet Webhook if configured
-    const sheetWebhook = env.GOOGLE_SHEET_WEBHOOK_URL;
-    if (sheetWebhook && sheetWebhook.startsWith('http')) {
-      try {
-        const sheetPayload = {
-          id: insertId,
-          full_name: fullName.trim(),
-          role: role || 'Principal',
-          school: school.trim(),
-          city: city ? city.trim() : '',
-          email: email.trim().toLowerCase(),
-          phone: phone.trim(),
-          category: category.trim(),
-          created_at: new Date().toISOString().replace('T', ' ').substring(0, 19),
-          status: 'Pending'
-        };
-
-        if (context.waitUntil) {
-          context.waitUntil(
-            fetch(sheetWebhook, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(sheetPayload)
-            }).catch(e => console.warn('Google Sheet forward warning:', e))
-          );
-        } else {
-          fetch(sheetWebhook, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(sheetPayload)
-          }).catch(e => console.warn('Google Sheet forward warning:', e));
-        }
-      } catch (sheetErr) {
-        console.warn('Google Sheet dispatch warning:', sheetErr);
-      }
-    }
+    await forwardToSheet(insertId);
 
     return new Response(JSON.stringify({
       success: true,

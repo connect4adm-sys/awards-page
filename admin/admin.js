@@ -15,7 +15,7 @@
 
   const APPS_SCRIPT_CODE = `/**
  * ============================================================
- * EDUCATION MENTOR AWARDS — GOOGLE APPS SCRIPT WEBHOOK
+ * EDUCATION MENTOR AWARDS 2026-2027 — GOOGLE APPS SCRIPT WEBHOOK
  * ============================================================
  * 
  * INSTRUCTIONS TO CONNECT GOOGLE SHEET:
@@ -26,7 +26,7 @@
  * 5. In the top right corner, click: Deploy → New deployment.
  * 6. Click the gear icon (⚙️) next to "Select type" and choose "Web app".
  * 7. Set the settings:
- *    - Description: Education Mentor Awards Webhook
+ *    - Description: Education Mentor Awards 2026-2027 Webhook
  *    - Execute as: "Me" (your email)
  *    - Who has access: "Anyone" (IMPORTANT: must be "Anyone")
  * 8. Click "Deploy", authorize access when prompted.
@@ -128,11 +128,52 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({
-    status: "active",
-    service: "Education Mentor Awards Google Sheet Sync",
-    timestamp: new Date().toISOString()
-  })).setMimeType(ContentService.MimeType.JSON);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getActiveSheet();
+    var lastRow = sheet.getLastRow();
+    
+    if (lastRow <= 1) {
+      return ContentService.createTextOutput(JSON.stringify({
+        success: true,
+        count: 0,
+        data: []
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // Read all rows
+    var values = sheet.getRange(2, 1, lastRow - 1, 10).getValues();
+    var nominations = [];
+    
+    for (var i = 0; i < values.length; i++) {
+      var row = values[i];
+      if (!row[0] && !row[2] && !row[6]) continue; // Skip empty rows
+      nominations.push({
+        created_at: row[0] ? String(row[0]) : "",
+        id: row[1] ? String(row[1]) : "",
+        full_name: row[2] ? String(row[2]) : "",
+        role: row[3] ? String(row[3]) : "",
+        school: row[4] ? String(row[4]) : "",
+        city: row[5] ? String(row[5]) : "",
+        email: row[6] ? String(row[6]) : "",
+        phone: row[7] ? String(row[7]) : "",
+        category: row[8] ? String(row[8]) : "",
+        status: row[9] ? String(row[9]) : "Pending"
+      });
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      success: true,
+      count: nominations.length,
+      data: nominations
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      error: err.toString(),
+      data: []
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
 }`;
 
   // 25 Education Mentor Award Categories
@@ -233,6 +274,10 @@ function doGet(e) {
   const testSheetBtn = document.getElementById('testSheetBtn');
   const copyAppsScriptBtn = document.getElementById('copyAppsScriptBtn');
   const copyScriptText = document.getElementById('copyScriptText');
+
+  // DOM Elements - D1 Notice Banner
+  const d1WarningBanner = document.getElementById('d1WarningBanner');
+  const dismissD1BannerBtn = document.getElementById('dismissD1BannerBtn');
 
   // State Store
   let rawSubmissions = [];
@@ -337,6 +382,13 @@ function doGet(e) {
     testSheetBtn.addEventListener('click', sendTestRowToGoogleSheet);
     copyAppsScriptBtn.addEventListener('click', copyAppsScriptCode);
 
+    // Dismiss D1 Notice Banner
+    if (dismissD1BannerBtn && d1WarningBanner) {
+      dismissD1BannerBtn.addEventListener('click', () => {
+        d1WarningBanner.style.display = 'none';
+      });
+    }
+
     // Escape key closes modals
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
@@ -422,7 +474,7 @@ function doGet(e) {
     showLogin();
   }
 
-  // Fetch Submissions from D1 API + Merge with LocalStorage Buffer
+  // Fetch Submissions from D1 API + Merge with LocalStorage Buffer + Google Sheet
   async function fetchSubmissions() {
     const token = sessionStorage.getItem(TOKEN_KEY);
     if (!token) return;
@@ -434,14 +486,20 @@ function doGet(e) {
 
     let serverList = [];
     let d1Connected = true;
+    const localSheetUrl = localStorage.getItem(GOOGLE_SHEET_KEY) || '';
 
     try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+      if (localSheetUrl) {
+        headers['X-Sheet-Url'] = localSheetUrl;
+      }
+
       const res = await fetch('/api/admin/submissions', {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
+        headers: headers
       });
 
       if (res.status === 401) {
@@ -457,13 +515,63 @@ function doGet(e) {
           localStorage.setItem(GOOGLE_SHEET_KEY, result.google_sheet_webhook);
           updateSheetBadgeAndStatus();
         }
+        if (result.d1_connected === false) {
+          d1Connected = false;
+          if (d1WarningBanner) d1WarningBanner.style.display = 'block';
+        } else if (result.d1_connected === true) {
+          d1Connected = true;
+          if (d1WarningBanner) d1WarningBanner.style.display = 'none';
+        }
       } else {
         d1Connected = false;
+        if (d1WarningBanner) d1WarningBanner.style.display = 'block';
         console.warn('D1 notice:', result.error || result.warning);
       }
     } catch (err) {
       d1Connected = false;
+      if (d1WarningBanner) d1WarningBanner.style.display = 'block';
       console.warn('API fetch notice:', err);
+    }
+
+    // Direct Google Sheet fetch fallback if configured
+    let sheetFetched = false;
+    const activeSheetUrl = localStorage.getItem(GOOGLE_SHEET_KEY) || '';
+    if (activeSheetUrl && activeSheetUrl.startsWith('https://')) {
+      try {
+        const sheetRes = await fetch(activeSheetUrl, { method: 'GET' });
+        if (sheetRes.ok) {
+          const sheetJson = await sheetRes.json();
+          if (sheetJson && sheetJson.success && Array.isArray(sheetJson.data)) {
+            sheetFetched = true;
+            sheetJson.data.forEach(sheetItem => {
+              const exists = serverList.some(s => {
+                if (s.id && sheetItem.id && String(s.id) === String(sheetItem.id)) return true;
+                if (s.email && sheetItem.email && s.email.toLowerCase().trim() === sheetItem.email.toLowerCase().trim()) {
+                  if (s.category === sheetItem.category) return true;
+                }
+                return false;
+              });
+              if (!exists) {
+                serverList.push({
+                  id: sheetItem.id || ('GS-' + Math.floor(Math.random() * 1000)),
+                  full_name: sheetItem.full_name || 'Nominee',
+                  role: sheetItem.role || 'Principal',
+                  school: sheetItem.school || 'School',
+                  city: sheetItem.city || 'India',
+                  email: sheetItem.email || '—',
+                  phone: sheetItem.phone || '—',
+                  category: sheetItem.category || 'General',
+                  created_at: sheetItem.created_at || new Date().toISOString().replace('T', ' ').substring(0, 19),
+                  status: sheetItem.status || 'Pending',
+                  source: 'google_sheet'
+                });
+              }
+            });
+          }
+        }
+      } catch (sheetFetchErr) {
+        console.warn('Direct Google Sheet fetch notice:', sheetFetchErr);
+      }
     }
 
     // Read any locally buffered submissions from localStorage
@@ -518,6 +626,9 @@ function doGet(e) {
     if (d1Connected) {
       syncStatus.textContent = `Connected · Synced ${now}`;
       syncStatus.style.color = '#2ecc71';
+    } else if (sheetFetched || (activeSheetUrl && serverList.length > 0)) {
+      syncStatus.textContent = `Google Sheet Synced · ${now}`;
+      syncStatus.style.color = '#dfba73';
     } else {
       syncStatus.textContent = `Local Buffer Active · ${now}`;
       syncStatus.style.color = '#f39c12';
@@ -585,8 +696,8 @@ function doGet(e) {
       if (roleVal !== 'ALL' && (item.role || '').toLowerCase() !== roleVal.toLowerCase()) {
         return false;
       }
-      // Category filter
-      if (catVal !== 'ALL' && item.category !== catVal) {
+      // Category filter (supports multiple selected awards)
+      if (catVal !== 'ALL' && !(item.category || '').toLowerCase().includes(catVal.toLowerCase())) {
         return false;
       }
       // Status filter
@@ -666,6 +777,12 @@ function doGet(e) {
 
       const currentStatus = item.status || 'Pending';
 
+      // Category badges (support up to 3 selected categories)
+      const cats = (item.category || '—').split(',').map(c => c.trim()).filter(Boolean);
+      const catBadgesHtml = cats.length > 0
+        ? cats.map(c => `<span class="category-badge">${escapeHtml(c)}</span>`).join('')
+        : `<span class="category-badge">—</span>`;
+
       tr.innerHTML = `
         <td class="col-id">#${escapeHtml(String(item.id || ''))}</td>
         <td class="col-date">${formattedDate}</td>
@@ -687,7 +804,7 @@ function doGet(e) {
           <div class="contact-phone">${escapeHtml(item.phone || '—')}</div>
         </td>
         <td>
-          <span class="category-badge">${escapeHtml(item.category || '—')}</span>
+          <div class="category-badges-wrap">${catBadgesHtml}</div>
         </td>
         <td>
           <select class="status-select status-${escapeHtml(currentStatus)}" data-id="${item.id}">

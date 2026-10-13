@@ -1,6 +1,6 @@
 /**
  * ============================================================
- * EDUCATION MENTOR AWARDS — GOOGLE APPS SCRIPT WEBHOOK
+ * EDUCATION MENTOR AWARDS 2026-2027 — GOOGLE APPS SCRIPT WEBHOOK
  * ============================================================
  * 
  * INSTRUCTIONS TO CONNECT GOOGLE SHEET:
@@ -12,12 +12,12 @@
  * 6. In the top right corner, click: Deploy → New deployment.
  * 7. Click the gear icon (⚙️) next to "Select type" and choose "Web app".
  * 8. Set the settings:
- *    - Description: Education Mentor Awards Webhook
+ *    - Description: Education Mentor Awards Webhook 2026-2027
  *    - Execute as: "Me" (your email)
  *    - Who has access: "Anyone" (IMPORTANT: must be "Anyone" so the landing page can post)
  * 9. Click "Deploy", approve permissions ("Advanced" → "Go to Education Mentor Awards (unsafe)" → "Allow").
  * 10. Copy the "Web app URL" (ends in /exec).
- * 11. Open your Admin Portal (awards.mymentorcircle.com/admin), click "Google Sheet", paste the URL, and click "Save & Sync"!
+ * 11. Open your Admin Portal (awards.mymentorcircle.com/admin), click "Google Sheet", paste the URL, and click "Save Webhook"!
  */
 
 function doPost(e) {
@@ -115,9 +115,43 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({
-    status: "active",
-    service: "Education Mentor Awards Google Sheet Sync",
-    timestamp: new Date().toISOString()
-  })).setMimeType(ContentService.MimeType.JSON);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getActiveSheet();
+    var data = sheet.getDataRange().getValues();
+    var result = [];
+    
+    if (data && data.length > 1) {
+      for (var i = 1; i < data.length; i++) {
+        var row = data[i];
+        if (!row[0] && !row[2]) continue;
+        result.push({
+          created_at: row[0] ? String(row[0]) : "",
+          id: row[1] || ("GS-" + i),
+          full_name: row[2] || "Nominee",
+          role: row[3] || "Principal",
+          school: row[4] || "",
+          city: row[5] || "",
+          email: row[6] || "",
+          phone: row[7] || "",
+          category: row[8] || "",
+          status: row[9] || "Pending"
+        });
+      }
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      success: true,
+      status: "active",
+      count: result.length,
+      data: result,
+      service: "Education Mentor Awards Google Sheet Sync 2026-2027",
+      timestamp: new Date().toISOString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      error: err.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
 }

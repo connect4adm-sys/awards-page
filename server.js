@@ -222,7 +222,8 @@ const server = http.createServer(async (req, res) => {
       databaseId: '47a46db1-2e59-4595-bcf5-01ee1fd29210',
       count: items.length,
       data: items,
-      google_sheet_webhook: GOOGLE_SHEET_WEBHOOK_URL || ''
+      google_sheet_webhook: GOOGLE_SHEET_WEBHOOK_URL || '',
+      d1_connected: true
     }));
     return;
   }

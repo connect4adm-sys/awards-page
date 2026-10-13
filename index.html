@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Education Mentor Awards 2026 | Pan-India Edition</title>
+  <title>Education Mentor Awards 2026-2027 | Pan-India Edition</title>
   <meta name="description"
-    content="Explore the Education Mentor Awards 2026, Pan-India Edition, recognising Principals, Vice-Principals and School Counsellors across 25 leadership categories nationwide." />
+    content="Explore the Education Mentor Awards 2026-2027, Pan-India Edition, recognising Principals, Vice-Principals and School Counsellors across 25 leadership categories nationwide." />
   <meta name="theme-color" content="#061831" />
 
   <link rel="icon" type="image/png" href="assets/mmc-logo.png" />
@@ -17,7 +17,7 @@
   <meta property="og:site_name" content="My Mentor Circle" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://awards.mymentorcircle.com/" />
-  <meta property="og:title" content="Education Mentor Awards 2026 | Pan-India Edition" />
+  <meta property="og:title" content="Education Mentor Awards 2026-2027 | Pan-India Edition" />
   <meta property="og:description"
     content="Recognising Principals, Vice-Principals and School Counsellors across 25 leadership categories nationwide." />
   <meta property="og:image" content="https://awards.mymentorcircle.com/images/awards-event/hero/hero2-principal-portrait.jpg" />
@@ -25,7 +25,7 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:url" content="https://awards.mymentorcircle.com/" />
-  <meta name="twitter:title" content="Education Mentor Awards 2026 | Pan-India Edition" />
+  <meta name="twitter:title" content="Education Mentor Awards 2026-2027 | Pan-India Edition" />
   <meta name="twitter:description"
     content="Recognising Principals, Vice-Principals and School Counsellors across 25 leadership categories nationwide." />
   <meta name="twitter:image" content="https://awards.mymentorcircle.com/images/awards-event/hero/hero2-principal-portrait.jpg" />
@@ -274,9 +274,9 @@
     }
 
     .nav-logo-title {
-      font-family: var(--font-display);
+      font-family: var(--font-body), 'Plus Jakarta Sans', 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       font-weight: 700;
-      font-size: 14.5px;
+      font-size: 15px;
       letter-spacing: -0.01em;
       color: #FFFFFF;
       white-space: nowrap;
@@ -4088,6 +4088,123 @@
       padding-right: 40px
     }
 
+    .category-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .category-label-row label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 0;
+    }
+
+    .category-label-row .sub-label {
+      font-family: var(--font-body);
+      font-size: 11px;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .cat-counter-pill {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: rgba(197, 160, 89, 0.15);
+      color: #8C7226;
+      border: 1px solid rgba(197, 160, 89, 0.35);
+      transition: all .3s ease;
+    }
+
+    .cat-counter-pill.limit-reached {
+      background: rgba(15, 42, 79, 0.12);
+      color: var(--navy);
+      border-color: var(--navy);
+      font-weight: 700;
+    }
+
+    .selected-categories-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      min-height: 38px;
+      padding: 4px 0;
+    }
+
+    .no-cats-placeholder {
+      font-size: 12.5px;
+      color: #8a9ba8;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    .cat-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #0F2A4F;
+      color: #F8F5EE;
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: var(--font-body);
+      border: 1px solid rgba(197, 160, 89, 0.4);
+      box-shadow: 0 2px 6px rgba(15, 42, 79, 0.12);
+      animation: chipFadeIn .2s ease-out;
+    }
+
+    @keyframes chipFadeIn {
+      from { opacity: 0; transform: scale(0.94); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .cat-chip strong {
+      color: var(--gold);
+      font-size: 11px;
+      font-family: var(--font-mono);
+    }
+
+    .cat-chip .remove-cat-btn {
+      background: rgba(255, 255, 255, 0.18);
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      line-height: 1;
+      padding: 0;
+      transition: all .2s;
+    }
+
+    .cat-chip .remove-cat-btn:hover {
+      background: #c0392b;
+      transform: scale(1.1);
+    }
+
+    .cat-error-note {
+      font-size: 12px;
+      color: #c0392b;
+      margin-top: 6px;
+      font-family: var(--font-body);
+      font-weight: 500;
+    }
+
     .consent {
       display: flex;
       gap: 12px;
@@ -4454,10 +4571,10 @@
 
   <nav class="nav" id="nav">
     <div class="nav-inner">
-      <a href="#top" class="nav-logo" title="Education Mentor Awards 2026 | My Mentor Circle">
+      <a href="#top" class="nav-logo" title="Education Mentor Awards 2026-2027 | My Mentor Circle">
         <img decoding="async" src="assets/mmc-logo.png" alt="My Mentor Circle Logo" />
         <div class="nav-logo-text">
-          <span class="nav-logo-title">Education Mentor Awards 2026</span>
+          <span class="nav-logo-title">Education Mentor Awards 2026-2027</span>
           <span class="nav-logo-sub">My Mentor Circle</span>
         </div>
       </a>
@@ -4495,7 +4612,7 @@
       <div class="mobile-drawer-footer">
         <a href="#nominate" class="btn btn-primary" style="width:100%;text-align:center"
           id="mobileDrawerNominate">Nominate a Leader →</a>
-        <div class="mobile-drawer-meta">Education Mentor Awards 2026 · Pan-India</div>
+        <div class="mobile-drawer-meta">Education Mentor Awards 2026-2027 · Pan-India</div>
       </div>
     </div>
   </div>
@@ -4506,7 +4623,7 @@
     <section class="h5 hero" id="hero" data-chapter="1">
       <div class="h5-in">
         <div>
-          <div class="h5-eyebrow">Education Mentor Awards 2026</div>
+          <div class="h5-eyebrow">Education Mentor Awards 2026-2027</div>
           <h1 class="h5-title">Your school remembers. <em>Now, so will the nation.</em></h1>
           <p class="h5-sub">A national recognition platform for the leaders whose quiet, consistent work has shaped
             India's strongest K-12 school communities.</p>
@@ -4544,7 +4661,7 @@
               alt="Indian School Principal Leadership" loading="eager"
               onerror="this.onerror=null;this.src='images/awards-event/hero/hero-principal-portrait.jpg';" />
             <div class="h5-corner"></div>
-            <div class="h5-live"><span class="d"></span><span>2026 · Live</span></div>
+            <div class="h5-live"><span class="d"></span><span>2026-2027 · Live</span></div>
             <span class="h5-cap">The work behind great schools</span>
           </div>
         </div>
@@ -4554,15 +4671,19 @@
     <!-- MARQUEE 1 -->
     <div class="marquee" aria-hidden="true">
       <div class="marquee-track">
+        <span class="marquee-item">State Level Recognisation</span>
+        <span class="marquee-item">National Level Recognisation</span>
         <span class="marquee-item">25 Categories</span>
         <span class="marquee-item">Specific Criteria</span>
         <span class="marquee-item">Meaningful Leadership</span>
-        <span class="marquee-item"><em>Pan-India Edition · 2026</em></span>
+        <span class="marquee-item"><em>Pan-India Edition · 2026-2027</em></span>
         <span class="marquee-item">Principals · Vice-Principals · Counsellors</span>
+        <span class="marquee-item">State Level Recognisation</span>
+        <span class="marquee-item">National Level Recognisation</span>
         <span class="marquee-item">25 Categories</span>
         <span class="marquee-item">Specific Criteria</span>
         <span class="marquee-item">Meaningful Leadership</span>
-        <span class="marquee-item"><em>Pan-India Edition · 2026</em></span>
+        <span class="marquee-item"><em>Pan-India Edition · 2026-2027</em></span>
         <span class="marquee-item">Principals · Vice-Principals · Counsellors</span>
       </div>
     </div>
@@ -4710,7 +4831,7 @@
 
                 <!-- Organization & Authority Title -->
                 <div class="cert-authority">
-                  <span class="cert-auth-name">Education Mentor Awards 2026</span>
+                  <span class="cert-auth-name">Education Mentor Awards 2026-2027</span>
                   <span class="cert-auth-sub">Pan-India Edition · Honouring Educational Distinction</span>
                 </div>
 
@@ -4832,8 +4953,8 @@
                       <polygon points="50,45.4 51.1,46.5 50,47.6 48.9,46.5" fill="#4A2E03" />
                       <text x="50" y="51.5" font-family="'Cinzel', Georgia, serif" font-size="3.4" font-weight="800"
                         text-anchor="middle" fill="#3D2502" letter-spacing="1.1">EXCELLENCE</text>
-                      <text x="50" y="57.5" font-family="'Inter', -apple-system, sans-serif" font-size="4.5"
-                        font-weight="800" text-anchor="middle" fill="#2A1600" letter-spacing="0.8">2026</text>
+                      <text x="50" y="57.5" font-family="'Inter', -apple-system, sans-serif" font-size="4.2"
+                        font-weight="800" text-anchor="middle" fill="#2A1600" letter-spacing="0.4">2026-27</text>
                     </svg>
                   </div>
 
@@ -4853,7 +4974,7 @@
                     <div class="cert-sign-line" aria-hidden="true"></div>
                     <div class="cert-sign-name">VISHAL BHALLA</div>
                     <div class="cert-sign-role">Convener &amp; Executive Director, My Mentor Circle</div>
-                    <div class="cert-sign-meta">Credential ID: K12-BCGA-2026-0842 · New Delhi</div>
+                    <div class="cert-sign-meta">Credential ID: MMC-EMA-2026-27-0842 · New Delhi</div>
                   </div>
                 </div>
 
@@ -4861,9 +4982,9 @@
                 <div class="cert-security-bar" aria-hidden="true">
                   <span>★ OFFICIAL RECOGNITION CITATION</span>
                   <span>·</span>
-                  <span>Education Mentor Awards 2026</span>
+                  <span>Education Mentor Awards 2026-2027</span>
                   <span>·</span>
-                  <span>REF: MMC/BCGA/2026/0842</span>
+                  <span>REF: MMC/EMA/2026-27/0842</span>
                   <span>·</span>
                   <span>DIGITALLY VERIFIED CREDENTIAL</span>
                 </div>
@@ -4872,7 +4993,7 @@
           </div>
         </div>
 
-        <div class="pov-label">Official Certificate Preview · <em>Best Career Guidance Award · 2026</em></div>
+        <div class="pov-label">Official Certificate Preview · <em>Best Career Guidance Award · 2026-2027</em></div>
       </div>
     </section>
 
@@ -5115,7 +5236,7 @@
           <div
             style="font-family:var(--font-mono);font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);margin-bottom:20px">
             Who will be recognised?</div>
-          <a href="#awards" class="btn btn-dark">See the 25 Categories <span class="arrow">→</span></a>
+          <a href="#awards" class="btn btn-dark">See all 25 Categories <span class="arrow">→</span></a>
         </div>
       </div>
     </section>
@@ -5387,7 +5508,7 @@
           <div class="event-visual">
             <img decoding="async" src="images/awards-event/event/event-experience-editorial.png"
               alt="Education Mentor Awards Experience Session" loading="lazy" />
-            <div class="cap">Pan-India Edition · 2026</div>
+            <div class="cap">Pan-India Edition · 2026-2027</div>
           </div>
           <div class="event-timeline">
             <div class="row">
@@ -5451,7 +5572,7 @@
         <div class="l1">The stage</div>
         <div class="l2">Recognition.</div>
         <div class="l3">For the work that matters.</div>
-        <div class="l4">Education Mentor Awards<br><em>2026 · Pan-India Edition</em></div>
+        <div class="l4">Education Mentor Awards<br><em>2026-2027 · Pan-India Edition</em></div>
       </div>
     </section>
 
@@ -5541,7 +5662,7 @@
 
                 <!-- Organization & Authority Title -->
                 <div class="cert-authority">
-                  <span class="cert-auth-name">Education Mentor Awards 2026</span>
+                  <span class="cert-auth-name">Education Mentor Awards 2026-2027</span>
                   <span class="cert-auth-sub">Pan-India Edition · Honouring Educational Distinction</span>
                 </div>
 
@@ -5662,8 +5783,8 @@
                       <polygon points="50,45.4 51.1,46.5 50,47.6 48.9,46.5" fill="#4A2E03" />
                       <text x="50" y="51.5" font-family="'Cinzel', Georgia, serif" font-size="3.4" font-weight="800"
                         text-anchor="middle" fill="#3D2502" letter-spacing="1.1">EXCELLENCE</text>
-                      <text x="50" y="57.5" font-family="'Inter', -apple-system, sans-serif" font-size="4.5"
-                        font-weight="800" text-anchor="middle" fill="#2A1600" letter-spacing="0.8">2026</text>
+                      <text x="50" y="57.5" font-family="'Inter', -apple-system, sans-serif" font-size="4.2"
+                        font-weight="800" text-anchor="middle" fill="#2A1600" letter-spacing="0.4">2026-27</text>
                     </svg>
                   </div>
 
@@ -5683,7 +5804,7 @@
                     <div class="cert-sign-line" aria-hidden="true"></div>
                     <div class="cert-sign-name">VISHAL BHALLA</div>
                     <div class="cert-sign-role">Convener &amp; Executive Director, My Mentor Circle</div>
-                    <div class="cert-sign-meta">Credential ID: K12-BCGA-2026-0842 · New Delhi</div>
+                    <div class="cert-sign-meta">Credential ID: MMC-EMA-2026-27-0842 · New Delhi</div>
                   </div>
                 </div>
 
@@ -5691,9 +5812,9 @@
                 <div class="cert-security-bar" aria-hidden="true">
                   <span>★ OFFICIAL RECOGNITION CITATION</span>
                   <span>·</span>
-                  <span>Education Mentor Awards 2026</span>
+                  <span>Education Mentor Awards 2026-2027</span>
                   <span>·</span>
-                  <span>REF: MMC/BCGA/2026/0842</span>
+                  <span>REF: MMC/EMA/2026-27/0842</span>
                   <span>·</span>
                   <span>DIGITALLY VERIFIED CREDENTIAL</span>
                 </div>
@@ -5702,7 +5823,7 @@
           </div>
         </div>
 
-        <div class="imagine-note">Official Citation Preview · <em>Best Career Guidance Award · 2026</em></div>
+        <div class="imagine-note">Official Citation Preview · <em>Best Career Guidance Award · 2026-2027</em></div>
         <div class="imagine-cta"><a href="#awards" class="btn btn-primary">Explore the Awards <span
               class="arrow">→</span></a></div>
       </div>
@@ -5715,7 +5836,7 @@
         <div class="divider-num"><em>07</em></div>
         <div class="divider-body">
           <div class="d-label">The Stage</div>
-          <h3>Pan-India. <em>National Reach.</em> Edition 2026.</h3>
+          <h3>Pan-India. <em>National Reach.</em> Edition 2026-2027.</h3>
           <p>The premier national awards dedicated to visionary K-12 educators and leaders shaping schools across every
             state and union territory.</p>
         </div>
@@ -5731,7 +5852,7 @@
         <div class="container">
           <div class="eyebrow on-dark">Chapter 07 · The Stage</div>
           <h2>Pan-India. <em>National Reach.</em></h2>
-          <p>The 2026 national edition is dedicated to the K-12 leadership community across India — Principals,
+          <p>The 2026-2027 national edition is dedicated to the K-12 leadership community across India — Principals,
             Vice-Principals and School Counsellors driving educational innovation, student readiness, and transformative
             leadership across the country's school ecosystem.</p>
           <div class="chapter-meta">
@@ -5745,7 +5866,7 @@
             </div>
             <div>
               <div class="lbl">Edition</div>
-              <div class="val"><em>2026</em></div>
+              <div class="val"><em>2026-2027</em></div>
             </div>
           </div>
         </div>
@@ -5758,11 +5879,11 @@
         <span class="marquee-item">The work is already happening</span>
         <span class="marquee-item"><em>Now let it be seen</em></span>
         <span class="marquee-item">Now let it be recognised</span>
-        <span class="marquee-item"><em>Pan-India Edition · 2026</em></span>
+        <span class="marquee-item"><em>Pan-India Edition · 2026-2027</em></span>
         <span class="marquee-item">The work is already happening</span>
         <span class="marquee-item"><em>Now let it be seen</em></span>
         <span class="marquee-item">Now let it be recognised</span>
-        <span class="marquee-item"><em>Pan-India Edition · 2026</em></span>
+        <span class="marquee-item"><em>Pan-India Edition · 2026-2027</em></span>
       </div>
     </div>
 
@@ -5809,10 +5930,20 @@
                   placeholder="+91" required /></div>
             </div>
             <div class="form-row">
-              <div class="field full"><label for="category">Award Category</label><select id="category" name="category"
-                  required>
-                  <option value="">Select an award category</option>
-                </select></div>
+              <div class="field full">
+                <div class="category-label-row">
+                  <label for="categoryDropdown">Award Categories <span class="sub-label">(Select up to 3 awards)</span></label>
+                  <span class="cat-counter-pill" id="catCounterPill">0 / 3 Selected</span>
+                </div>
+                <input type="hidden" id="category" name="category" required />
+                <select id="categoryDropdown">
+                  <option value="">+ Choose an award category (max 3)...</option>
+                </select>
+                <div class="selected-categories-container" id="selectedCatsContainer">
+                  <span class="no-cats-placeholder">No categories chosen yet. Select 1 to 3 categories from the dropdown above.</span>
+                </div>
+                <div class="cat-error-note" id="catErrorNote" style="display:none"></div>
+              </div>
             </div>
             <label class="consent"><input type="checkbox" id="consent" required /><span>I confirm the information
                 provided is accurate and consent to being contacted regarding this nomination. I understand submission
@@ -5839,12 +5970,12 @@
         <div class="final-beat" style="margin-top:1.6rem">The work is <span class="dim">already happening.</span></div>
         <div class="final-beat">Now let it be <em>seen.</em></div>
         <div class="final-beat">Now let it be <em>recognised.</em></div>
-        <p>Submit your nomination for the Education Mentor Awards 2026 — Pan-India Edition.</p>
+        <p>Submit your nomination for the Education Mentor Awards 2026-2027 — Pan-India Edition.</p>
         <div class="final-ctas">
           <a href="#awards" class="btn btn-ghost">Explore Your Category</a>
           <a href="#nominate" class="btn btn-primary">Submit Your Nomination <span class="arrow">→</span></a>
         </div>
-        <div class="final-meta">Education Mentor Awards 2026 <span class="dot">•</span> Pan-India
+        <div class="final-meta">Education Mentor Awards 2026-2027 <span class="dot">•</span> Pan-India
           Edition</div>
       </div>
     </section>
@@ -5859,7 +5990,7 @@
             onerror="this.style.display='none';this.nextElementSibling.style.display='inline';" />
           <span class="fallback" style="display:none">MY MENTOR <span>CIRCLE</span></span>
         </div>
-        <p style="max-width:340px;line-height:1.7">Facilitating the Education Mentor Awards 2026
+        <p style="max-width:340px;line-height:1.7">Facilitating the Education Mentor Awards 2026-2027
           through the National K-12 Leadership Council.</p>
       </div>
       <div>
@@ -5881,7 +6012,7 @@
     </div>
     <div class="container"
       style="margin-top:50px;padding-top:24px;border-top:1px solid rgba(255,255,255,.08);font-size:.78rem">
-      © 2026 My Mentor Circle · Education Mentor Awards · Pan-India Edition
+      © 2026-2027 My Mentor Circle · Education Mentor Awards · Pan-India Edition
     </div>
   </footer>
 
@@ -5997,15 +6128,105 @@
     });
 
     /* ============================================================
-       Category dropdown
+       Multi-Category Selector (Max 3 Awards)
        ============================================================ */
-    const categorySelect = document.getElementById('category');
-    AWARDS.forEach(a => {
-      const opt = document.createElement('option');
-      opt.value = a.name;
-      opt.textContent = `${a.num} — ${a.name} (${a.role})`;
-      categorySelect.appendChild(opt);
-    });
+    const categoryHidden = document.getElementById('category');
+    const categoryDropdown = document.getElementById('categoryDropdown');
+    const selectedCatsContainer = document.getElementById('selectedCatsContainer');
+    const catCounterPill = document.getElementById('catCounterPill');
+    const catErrorNote = document.getElementById('catErrorNote');
+
+    let selectedCategories = [];
+
+    function populateCategoryDropdown() {
+      if (!categoryDropdown) return;
+      categoryDropdown.innerHTML = '<option value="">+ Choose an award category (max 3)...</option>';
+      AWARDS.forEach(a => {
+        const isChosen = selectedCategories.includes(a.name);
+        const opt = document.createElement('option');
+        opt.value = a.name;
+        opt.textContent = `${isChosen ? '✓ ' : ''}${a.num} — ${a.name} (${a.role})`;
+        if (isChosen) opt.disabled = true;
+        categoryDropdown.appendChild(opt);
+      });
+    }
+
+    function renderSelectedCategories() {
+      if (!selectedCatsContainer) return;
+      selectedCatsContainer.innerHTML = '';
+      if (selectedCategories.length === 0) {
+        selectedCatsContainer.innerHTML = '<span class="no-cats-placeholder">No categories chosen yet. Select 1 to 3 categories from the dropdown above.</span>';
+        if (catCounterPill) {
+          catCounterPill.textContent = '0 / 3 Selected';
+          catCounterPill.classList.remove('limit-reached');
+        }
+        if (categoryHidden) categoryHidden.value = '';
+        if (categoryDropdown) categoryDropdown.disabled = false;
+        populateCategoryDropdown();
+        return;
+      }
+
+      selectedCategories.forEach((catName, idx) => {
+        const chip = document.createElement('div');
+        chip.className = 'cat-chip';
+        chip.innerHTML = `
+          <span><strong>#${idx + 1}</strong> ${catName}</span>
+          <button type="button" class="remove-cat-btn" data-cat="${catName}" title="Remove category">&times;</button>
+        `;
+        selectedCatsContainer.appendChild(chip);
+      });
+
+      selectedCatsContainer.querySelectorAll('.remove-cat-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const toRemove = btn.dataset.cat;
+          selectedCategories = selectedCategories.filter(c => c !== toRemove);
+          if (catErrorNote) catErrorNote.style.display = 'none';
+          renderSelectedCategories();
+        });
+      });
+
+      if (categoryHidden) categoryHidden.value = selectedCategories.join(', ');
+      
+      if (catCounterPill) {
+        catCounterPill.textContent = `${selectedCategories.length} / 3 Selected`;
+        if (selectedCategories.length >= 3) {
+          catCounterPill.classList.add('limit-reached');
+          catCounterPill.textContent = '3 / 3 Selected (Max)';
+        } else {
+          catCounterPill.classList.remove('limit-reached');
+        }
+      }
+
+      if (categoryDropdown) {
+        categoryDropdown.disabled = selectedCategories.length >= 3;
+      }
+      populateCategoryDropdown();
+    }
+
+    if (categoryDropdown) {
+      categoryDropdown.addEventListener('change', () => {
+        const chosen = categoryDropdown.value;
+        if (!chosen) return;
+        if (selectedCategories.includes(chosen)) {
+          categoryDropdown.value = '';
+          return;
+        }
+        if (selectedCategories.length >= 3) {
+          if (catErrorNote) {
+            catErrorNote.textContent = 'You can select a maximum of 3 award categories. Remove one to choose another.';
+            catErrorNote.style.display = 'block';
+          }
+          categoryDropdown.value = '';
+          return;
+        }
+        if (catErrorNote) catErrorNote.style.display = 'none';
+        selectedCategories.push(chosen);
+        renderSelectedCategories();
+        categoryDropdown.value = '';
+      });
+      populateCategoryDropdown();
+    }
 
     /* Match pathways */
     document.querySelectorAll('.path').forEach(p => {
@@ -6031,6 +6252,19 @@
           valid = false; f.style.borderColor = '#c0392b';
         } else { f.style.borderColor = ''; }
       });
+
+      if (selectedCategories.length === 0) {
+        valid = false;
+        if (categoryDropdown) categoryDropdown.style.borderColor = '#c0392b';
+        if (catErrorNote) {
+          catErrorNote.textContent = 'Please select at least 1 award category (up to 3 categories allowed).';
+          catErrorNote.style.display = 'block';
+        }
+      } else {
+        if (categoryDropdown) categoryDropdown.style.borderColor = '';
+        if (catErrorNote) catErrorNote.style.display = 'none';
+      }
+
       if (!valid) return;
 
       const submitBtn = form.querySelector('button[type="submit"]');
@@ -6047,7 +6281,7 @@
       const rawCity = (form.city ? form.city.value : '').trim();
       const rawEmail = (form.email ? form.email.value : '').trim();
       const rawPhone = (form.phone ? form.phone.value : '').trim();
-      const rawCategory = form.category ? form.category.value : '';
+      const rawCategory = categoryHidden ? categoryHidden.value : (form.category ? form.category.value : '');
 
       const localId = 'NOM-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(100 + Math.random() * 900);
       const nowIso = new Date().toISOString().replace('T', ' ').substring(0, 19);

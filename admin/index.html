@@ -94,7 +94,7 @@
         </div>
         <div class="brand-text">
           <h1>Education Mentor Awards</h1>
-          <span class="badge-edition">Command Center · Pan-India 2026</span>
+          <span class="badge-edition">Command Center · Pan-India 2026-2027</span>
         </div>
       </div>
 
@@ -211,6 +211,21 @@
           <div class="stat-foot">Academic Leads &amp; Mentors</div>
         </div>
       </section>
+
+      <!-- Cloudflare D1 Database Binding Notice Banner -->
+      <div id="d1WarningBanner" class="d1-banner" style="display: none;">
+        <div class="d1-banner-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </div>
+        <div class="d1-banner-text">
+          <strong>Notice for Multi-Device Sync:</strong> Cloudflare D1 SQL binding <code>DB</code> is pending in Cloudflare Pages dashboard. To save leads permanently on Cloudflare: <em>Cloudflare Dashboard &rarr; Pages &rarr; Settings &rarr; Functions &rarr; D1 database bindings &rarr; Add variable <code>DB</code> bound to <code>awards-data</code></em>. Google Sheet sync is currently active as universal real-time backup across all devices!
+        </div>
+        <button id="dismissD1BannerBtn" class="d1-banner-close" title="Dismiss notice">&times;</button>
+      </div>
 
       <!-- Filter & Action Toolbar -->
       <section class="toolbar-section">

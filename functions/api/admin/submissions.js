@@ -35,17 +35,37 @@ export async function onRequestGet(context) {
     });
   }
 
+  const sheetWebhook = request.headers.get('X-Sheet-Url') || env.GOOGLE_SHEET_WEBHOOK_URL || '';
   const db = env.DB || env['awards-data'] || env.awards_data || env.AWARDS_DATA || env.AWARDS_DB;
+
   if (!db) {
+    let sheetData = [];
+    if (sheetWebhook && sheetWebhook.startsWith('https://')) {
+      try {
+        const sheetRes = await fetch(sheetWebhook, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+        if (sheetRes.ok) {
+          const sheetJson = await sheetRes.json();
+          if (sheetJson && sheetJson.success && Array.isArray(sheetJson.data)) {
+            sheetData = sheetJson.data;
+          }
+        }
+      } catch (sheetErr) {
+        console.warn('Server Google Sheet fetch warning:', sheetErr);
+      }
+    }
+
     return new Response(JSON.stringify({
       success: true,
       database: 'awards-data',
       databaseId: '47a46db1-2e59-4595-bcf5-01ee1fd29210',
-      count: 0,
-      data: [],
-      google_sheet_webhook: env.GOOGLE_SHEET_WEBHOOK_URL || '',
+      count: sheetData.length,
+      data: sheetData,
+      google_sheet_webhook: sheetWebhook,
       d1_connected: false,
-      warning: "D1 Database binding 'DB' not configured. Bind D1 'awards-data' to variable 'DB' in Cloudflare Pages Settings."
+      warning: "Cloudflare D1 Database binding 'DB' not configured. In Cloudflare Dashboard go to: Pages → awards-page → Settings → Functions → D1 database bindings, and bind 'awards-data' to variable name 'DB'."
     }), {
       status: 200,
       headers: CORS_HEADERS
